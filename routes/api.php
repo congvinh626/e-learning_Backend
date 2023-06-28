@@ -1,8 +1,7 @@
 <?php
 
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\RegisterControler;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,15 +18,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisterControler::class, 'register']);
 Route::post('/login', [RegisterControler::class, 'login']);
-Route::get('/user', [RegisterControler::class, 'getUser'])->middleware('auth:api');
-Route::get('/getUser', [UserController::class, 'index'])->middleware('auth:api');
-Route::get('/task', [TaskController::class, 'index'])->middleware('auth:api');
-Route::post('/task', [TaskController::class, 'store'])->middleware('auth:api');
-Route::delete('/task/{id}', [TaskController::class, 'destroy'])->middleware('auth:api');
+
+
 // Route::post('/register', 'Regis@register');
 // Route::post('/register', function(){
 //     return 3333;
 // });
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::get('/course', [CourseController::class, 'index']);
+    Route::get('/course/{slug}', [CourseController::class, 'show']);
+    Route::post('/course', [CourseController::class, 'store']);
+    Route::post('/course/update', [CourseController::class, 'update']);
+    Route::delete('/course/{slug}', [CourseController::class, 'destroy']);
+});
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {

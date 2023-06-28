@@ -23,16 +23,19 @@ class RegisterControler extends Controller
 
     public function login(LoginRequest $request){
         if(Auth::attempt([
-            'email' => $request->email,
+            'username' => $request->username,
             'password' => $request->password
         ])){
-            $user = User::whereEmail($request->email)->first();
+            $user = User::where('username', $request->username)->first();
             $user->token = $user->createToken('App')->accessToken;
             $user->statusCode = 200;
             return response()->json($user);
         }
 
-        return response()->json(['email' => 'Sai ten dang nhap hoac mat khau'], 400);
+        return response()->json([
+            'statusCode' => 400,
+            'message' => 'Tên đăng nhập hoặc mật khẩu không chính xác'
+        ], 200);
     }
 
     public function getUser(Request $request){

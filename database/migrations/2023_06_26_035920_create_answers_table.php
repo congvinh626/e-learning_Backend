@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('slug');
-            $table->string('name');
+        Schema::create('answers', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->boolean('result');
+            $table->unsignedBigInteger('question_id');
+            $table->unsignedBigInteger('fileUpload_id')->nullable();
+
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permissions');
+        Schema::dropIfExists('answers');
     }
 };

@@ -8,7 +8,8 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 use Illuminate\Contracts\Validation\Validator;
 
-class LoginRequest extends FormRequest
+
+class CourseRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +27,11 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required',
-            'password' => 'required|min:6',
+            'title' => 'required',
+            'slug' => 'required|unique:courses',
+            'code' => 'required|unique:courses',
+            'status' => 'required|boolean',
+
         ];
     }
 
@@ -42,9 +46,16 @@ class LoginRequest extends FormRequest
     public function messages()
     {
         return [
-            'username.required' => 'Tên đăng nhập bắt buộc nhập!',
-            'password.required' => 'Mật khảu bắt buộc nhập!',
-            'password.min' => 'Mật khẩu quá ngắn',
+            'title.required' => 'Khóa học học bắt buộc nhập!',
+            'slug.required' => 'Slug bắt buộc nhập!',
+            'slug.unique' => 'Slug đã tồn tại!',
+
+            'code.required' => 'Mã khóa học bắt buộc nhập!',
+            'code.unique' => 'Mã khóa học đã tồn tại!',
+
+            'status.required' => 'Kiểu dữ liệu không hợp lệ!',
+            'status.boolean' => 'Kiểu dữ liệu không hợp lệ!',
+
         ];
     }
 }

@@ -13,15 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/', function () {
-    $user = request()->user();
-    dd($user->can('create-tasks'));
     return view('welcome');
-})->middleware('auth');
+});
 
 Auth::routes();
 
