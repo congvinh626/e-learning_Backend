@@ -1,9 +1,14 @@
 <?php
 
+use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RegisterControler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\Console\Output\AnsiColorMode;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +35,28 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/course', [CourseController::class, 'store']);
     Route::post('/course/update', [CourseController::class, 'update']);
     Route::delete('/course/{slug}', [CourseController::class, 'destroy']);
+    Route::post('/course/changeStatus/{slug}', [CourseController::class, 'changeStatus']);
+
+    Route::get('/course/lesson/{slug}', [LessonController::class, 'index']);
+    Route::get('/lesson/{slug}', [LessonController::class, 'show']);
+    Route::post('/lesson', [LessonController::class, 'store']);
+    Route::post('/lesson/update', [LessonController::class, 'update']);
+    Route::delete('/lesson/{slug}', [LessonController::class, 'destroy']);
+
+    // Route::get('/exam/{slug}', [LessonController::class, 'index']);
+    Route::get('/exam/{slug}', [ExamController::class, 'show']);
+    Route::post('/exam', [ExamController::class, 'store']);
+    Route::post('/exam/update', [ExamController::class, 'update']);
+    Route::delete('/exam/{slug}', [ExamController::class, 'destroy']);
+
+    // Route::get('/exam/{slug}', [ExamController::class, 'show']);
+    Route::post('/question', [QuestionController::class, 'store']);
+    Route::post('/question/update', [QuestionController::class, 'update']);
+    Route::delete('/question/{id}', [QuestionController::class, 'destroy']);
+
+    Route::post('/answer', [AnswerController::class, 'store']);
+    Route::post('/answer/update', [AnswerController::class, 'update']);
+    Route::delete('/answer/{id}', [AnswerController::class, 'destroy']);
 });
 
 

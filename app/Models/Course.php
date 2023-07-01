@@ -20,12 +20,12 @@ class Course extends Model
         'status'
     ];
 
-    public function user(){
+    public function users(){
         return $this->belongsToMany(User::class, 'course_user');
         // return $this->belongsToMany(Category::class, 'categoriy_post')->withPivot('value');
     }
 
-    public function lesson(){
+    public function lessons(){
         return $this->hasMany(Lesson::class);
         // return $this->belongsToMany(Category::class, 'categoriy_post')->withPivot('value');
     }

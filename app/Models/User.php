@@ -49,15 +49,15 @@ class User extends Authenticatable
         return $this->hasOne(Avatar::class);
     }
 
-    public function comment(){
+    public function comments(){
         return $this->hasMany(Comment::class);
     }
 
-    public function history(){
+    public function histories(){
         return $this->hasMany(History::class);
     }
 
-    public function course(){
+    public function courses(){
         return $this->belongsToMany(Course::class, 'course_user');
     }
 }

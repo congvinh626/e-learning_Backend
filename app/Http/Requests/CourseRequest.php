@@ -46,7 +46,7 @@ class CourseRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required' => 'Khóa học học bắt buộc nhập!',
+            'title.required' => 'Khóa học bắt buộc nhập!',
             'slug.required' => 'Slug bắt buộc nhập!',
             'slug.unique' => 'Slug đã tồn tại!',
 

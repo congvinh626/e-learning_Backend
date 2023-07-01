@@ -14,6 +14,8 @@ class Lesson extends Model
     protected $fillable = [
         'title',
         'slug',
+        'description',
+        'link',
         'course_id'
     ];
 
@@ -22,15 +24,15 @@ class Lesson extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function exam(){
+    public function exams(){
         return $this->hasMany(Exam::class);
     }
 
-    public function comment(){
+    public function comments(){
         return $this->hasMany(Comment::class);
     }
 
-    public function fileUpload(){
+    public function fileUploads(){
         return $this->hasMany(FileUpload::class);
     }
 }

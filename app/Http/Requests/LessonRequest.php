@@ -4,6 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use Illuminate\Http\Exceptions\HttpResponseException;
+
+use Illuminate\Contracts\Validation\Validator;
+
 class LessonRequest extends FormRequest
 {
     /**
@@ -11,7 +15,7 @@ class LessonRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +26,31 @@ class LessonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required',
+            'slug' => 'required|unique:lessons',
+            'course_id' => 'required|numeric',
+
+        ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'statusCode' => 400,
+            'message' => $validator->errors()
+        ]));
+    }
+
+    public function messages()
+    {
+        return [
+            'title.required' => 'Khóa học học bắt buộc nhập!',
+            'slug.required' => 'Slug bắt buộc nhập!',
+            'slug.unique' => 'Slug đã tồn tại!',
+
+            'course_id.required' => 'Mã khóa học bắt buộc nhập!',
+            'course_id.numeric' => 'Mã khóa học không hợp lệ!',
+
         ];
     }
 }

@@ -3,12 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 use Illuminate\Contracts\Validation\Validator;
-
-class ExamRequest extends FormRequest
+class QuestionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,8 +25,7 @@ class ExamRequest extends FormRequest
     {
         return [
             'title' => 'required',
-            'slug' => 'required|unique:exams',
-            'time' => 'required|numeric',
+            'exam_id' => 'required|numeric',
         ];
     }
 
@@ -43,13 +40,10 @@ class ExamRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required' => 'Bài kiểm tra bắt buộc nhập!',
-            'slug.required' => 'Slug bắt buộc nhập!',
-            'slug.unique' => 'Slug đã tồn tại!',
+            'title.required' => 'Khóa học học bắt buộc nhập!',
 
-            'time.required' => 'Thời gian thi không hợp lệ!',
-            'time.numeric' => 'Thời gian thi không hợp lệ!',
-
+            'exam_id.required' => 'Mã bài thi bắt buộc nhập!',
+            'exam_id.numeric' => 'Mã bài thi không hợp lệ!',
         ];
     }
 }

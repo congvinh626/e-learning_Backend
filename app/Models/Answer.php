@@ -13,6 +13,7 @@ class Answer extends Model
 
     protected $fillable = [
         'title',
+        'result',
         'question_id',
         'fileUpload_id'
     ];

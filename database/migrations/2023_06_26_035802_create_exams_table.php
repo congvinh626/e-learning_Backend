@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('slug')->unique();
             $table->string('numberOfQuestion')->nullable();
             $table->string('time')->nullable();
             $table->dateTime('startTime')->nullable();

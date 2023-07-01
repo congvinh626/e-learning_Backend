@@ -15,12 +15,12 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $userCourses = $request->user()->course();
-
+        $userCourses = $request->users()->courses();
         if($request->search){
             $userCourses = $userCourses->where('title', 'like', "%$request->search%");
         }
-        $userCourses = $userCourses->paginate()->toArray();
+        $userCourses = $userCourses->paginate($request->pageSize);
+        // $userCourses = $userCourses->paginate()->toArray();
         return $userCourses;
     }
 
@@ -58,7 +58,10 @@ class CourseController extends Controller
         $course = Course::findOrFail($request->id);
         $course->fill($request->all());
         $course->save();
-        return $request;
+        return response()->json([
+            'statusCode' => 200,
+            'message' => 'Cập nhật thành công!'
+        ], 200);
     }
 
     /**
@@ -74,4 +77,18 @@ class CourseController extends Controller
             'message' => 'Xóa khóa học thành công!'
         ], 200);
     }
+
+    public function changeStatus(string $slug)
+    {
+        $course = Course::where('slug', $slug)->first();
+
+        $course->status = $course->status == 1 ? 0 : 1;
+        $course->save();
+
+        return response()->json([
+            'statusCode' => 200,
+            'message' => 'Thay đổi trạng thái thành công!'
+        ], 200);
+    }
+    
 }

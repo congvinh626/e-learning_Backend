@@ -13,19 +13,29 @@ class Exam extends Model
 
     protected $fillable = [
         'title',
+        'slug',
+        'numberOfQuestion',
+        'time',
+        'startTime',
+        'endTime',
+        'classify',
         'showResult',
         'lesson_id'
     ];
+
+    protected $casts = [
+        'classify' => 'array'
+   ];
 
     public function course(){
         return $this->belongsTo(Lesson::class);
     }
 
-    public function history(){
+    public function histories(){
         return $this->hasMany(Lesson::class);
     }
 
-    public function question(){
+    public function questions(){
         return $this->hasMany(Question::class);
     }
 
