@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('link')->nullable();
             $table->unsignedBigInteger('course_id');
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+            
             $table->timestamps();
         });
     }
@@ -27,6 +29,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Schema::table('lessons', function (Blueprint $table) {
+        //     $table->dropForeign('course_id');
+        // });
         Schema::dropIfExists('lessons');
     }
 };

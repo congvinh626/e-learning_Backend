@@ -15,7 +15,7 @@ class Question extends Model
         'title',
         'level',
         'exam_id',
-        'fileUpload_id'
+        'file_upload_id'
     ];
 
     public function exam(){

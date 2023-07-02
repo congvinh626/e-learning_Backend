@@ -48,9 +48,7 @@ class QuestionController extends Controller
      */
     public function destroy(string $id)
     {
-        $question = Question::find($id);
-        Question::destroy( $question->id);
-        
+        Question::destroy( $id);
         return response()->json([
             'statusCode' => 200,
             'message' => 'Xóa câu hỏi thành công!'

@@ -2,7 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Answer;
+use App\Models\Course;
+use App\Models\Exam;
+use App\Models\Lesson;
 use App\Models\Permission;
+use App\Models\Question;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -30,5 +35,40 @@ class UserTableSeeder extends Seeder
         $developer_delete->type = 2;
         $developer_delete->save();
 
+
+        
+
+        
+
+        $Exam = new Exam();
+        $Exam->title = 'bai-kiem-tra';
+        $Exam->time = 5;
+        $Exam->showResult = 1;
+        $Exam->lesson_id = 1;
+        $Exam->slug = 'bai-kiem-tra-1';
+        $Exam->save();
+
+        $Question = new Question();
+        $Question->title = '2 + 2';
+        $Question->exam_id = 1;
+        $Question->save();
+
+        $Answer = new Answer();
+        $Answer->title = '1';
+        $Answer->result = 0;
+        $Answer->question_id = 1;
+        $Answer->save();
+
+        $Answer = new Answer();
+        $Answer->title = '2';
+        $Answer->result = 0;
+        $Answer->question_id = 1;
+        $Answer->save();
+
+        $Answer = new Answer();
+        $Answer->title = '4';
+        $Answer->result = 1;
+        $Answer->question_id = 1;
+        $Answer->save();
     }
 }

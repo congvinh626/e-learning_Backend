@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('scores');
             $table->unsignedBigInteger('exam_id');
             $table->unsignedBigInteger('user_id');
+            $table->foreign('exam_id')->references('id')->on('exams')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->timestamps();
         });

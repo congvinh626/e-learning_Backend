@@ -33,7 +33,7 @@ class CourseController extends Controller
         $course = new Course();
         $course->fill($request->all());
         $course->save();
-        $course->user()->attach($user);
+        $course->users()->attach($user);
 
         return response()->json([
             'statusCode' => 200,
