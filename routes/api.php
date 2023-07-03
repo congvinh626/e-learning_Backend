@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RegisterControler;
@@ -48,6 +49,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/exam', [ExamController::class, 'store']);
     Route::post('/exam/update', [ExamController::class, 'update']);
     Route::delete('/exam/{slug}', [ExamController::class, 'destroy']);
+    Route::get('/getExam/{slug}', [ExamController::class, 'getExam']);
 
     // Route::get('/exam/{slug}', [ExamController::class, 'show']);
     Route::post('/question', [QuestionController::class, 'store']);
@@ -57,6 +59,13 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/answer', [AnswerController::class, 'store']);
     Route::post('/answer/update', [AnswerController::class, 'update']);
     Route::delete('/answer/{id}', [AnswerController::class, 'destroy']);
+
+    Route::get('/history/{id}', [HistoryController::class, 'show']);
+    Route::post('/history', [HistoryController::class, 'store']);
+
+    Route::get('/user', [HistoryController::class, 'show']);
+    Route::post('/user/update', [HistoryController::class, 'update']);
+
 });
 
 

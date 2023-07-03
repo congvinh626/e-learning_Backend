@@ -9,19 +9,26 @@ class History extends Model
 {
     use HasFactory;
 
-    protected $table = 'comments';
+    protected $table = 'histories';
 
     protected $fillable = [
+        'history',
         'scores',
         'exam_id',
         'user_id'
     ];
 
-    public function exam(){
+    protected $casts = [
+        'history' => 'array'
+    ];
+
+    public function exam()
+    {
         return $this->belongsTo(Exam::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

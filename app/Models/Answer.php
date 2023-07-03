@@ -15,7 +15,7 @@ class Answer extends Model
         'title',
         'result',
         'question_id',
-        'fileUpload_id'
+        'file_upload_id'
     ];
 
     public function question(){

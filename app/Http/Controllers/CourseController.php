@@ -15,7 +15,7 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $userCourses = $request->users()->courses();
+        $userCourses = $request->user()->courses();
         if($request->search){
             $userCourses = $userCourses->where('title', 'like', "%$request->search%");
         }

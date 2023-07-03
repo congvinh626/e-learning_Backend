@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('histories', function (Blueprint $table) {
             $table->id();
             $table->json('history');
-            $table->integer('scores');
+            $table->float('scores');
             $table->unsignedBigInteger('exam_id');
             $table->unsignedBigInteger('user_id');
             $table->foreign('exam_id')->references('id')->on('exams')->onDelete('cascade');
