@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('answers', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->text('title');
             $table->boolean('result');
             $table->unsignedBigInteger('question_id');
             $table->unsignedBigInteger('file_upload_id')->nullable();

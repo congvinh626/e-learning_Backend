@@ -16,8 +16,10 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $userCourses = $request->user()->courses();
-        if($request->search){
-            $userCourses = $userCourses->where('title', 'like', "%$request->search%");
+        $userCourses = $userCourses->where('status', $request->status);
+
+        if($request->searchText){
+            $userCourses = $userCourses->where('title', 'like', "%$request->searchText%");
         }
         $userCourses = $userCourses->paginate($request->pageSize);
         // $userCourses = $userCourses->paginate()->toArray();

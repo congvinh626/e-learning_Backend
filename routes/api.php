@@ -7,6 +7,7 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RegisterControler;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\Console\Output\AnsiColorMode;
@@ -63,8 +64,10 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/history/{id}', [HistoryController::class, 'show']);
     Route::post('/history', [HistoryController::class, 'store']);
 
-    Route::get('/user', [HistoryController::class, 'show']);
-    Route::post('/user/update', [HistoryController::class, 'update']);
+    Route::get('/user', [UserController::class, 'show']);
+    Route::post('/user/update', [UserController::class, 'update']);
+    Route::post('/user', [UserController::class, 'store']);
+    Route::post('/avatar', [UserController::class, 'avatar']);
 
 });
 

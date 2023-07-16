@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use App\Models\UserInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,10 @@ class RegisterControler extends Controller
         $user->fill($request->all());
         $user->password = Hash::make($request->password);
         $user->save();
+
+        $userInfo = new UserInfo();
+        $userInfo->user_id = $user->id;
+        $userInfo->save();
 
         return response()->json($user);
     }
@@ -34,7 +39,9 @@ class RegisterControler extends Controller
 
         return response()->json([
             'statusCode' => 400,
-            'message' => 'Tên đăng nhập hoặc mật khẩu không chính xác'
+            'message' => [
+                'incorrect' => 'Tên đăng nhập hoặc mật khẩu không chính xác'
+            ]
         ], 200);
     }
 
