@@ -11,53 +11,56 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use ImageIntervention;
 use Illuminate\Support\Facades\File;
+
 class UserController extends Controller
 {
-    public function show(string $id)
-    {
-        $user = User::user()->id;
-        $user = UserInfo::find($user);
 
-        return $user;
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
     }
 
-    public function store(request $request)
+    public function show()
     {
-       
-        $fileName = $request->get('name') . '.' . $request->file('photo')->extension();
-        $request->file('photo')->storeAs('profile', $fileName);
-        $pathToFile = $request->file('image')->store('images', 'public');
+        $userId = Auth::user()->id;
+        $userInfo = UserInfo::where('user_id', $userId)->first();
+        $userInfo->avatar = '/storage/images/avatar/'.$userInfo->avatar;
+        return $userInfo;
+    }
 
-        // ImageIntervention::make(storage_path($path))->resize(150,150)->save();
-        return $fileName;
+    public function update(Request $request)
+    {
+        $userInfo = UserInfo::findOrFail($request->id);        
+        $userInfo->name = $request->name;
+        $userInfo->phone = $request->phone;
+        $userInfo->dob = $request->dob;
+        $userInfo->adress = $request->adress;
+        $userInfo->save();
+        return response()->json([
+            'statusCode' => 200,
+            'message' => 'Cập nhật thành công!'
+        ], 200);
     }
 
     public function avatar(request $request)
     {
-        $user = Auth::user();
-        $userInfo = UserInfo::where('user_id', $user->id)->first();
-
-        $userInfo->avatar = $this->storeImage($request);
-        $userInfo->save();
-
-        return $userInfo;
-    }
-
-    protected function storeImage(Request $request) {
         
         $user = Auth::user();
-        $avatar = UserInfo::where('user_id',$user->id)->first()->avatar;
-       
-        $file_path = storage_path().'/app/public/images/avatar/'. $avatar;
-        if (File::exists($file_path)) {
-            
-            unlink($file_path);
-        }
 
-        $fileName = $user->username . '_' .  time().'.' . $request->file('avatar')->extension();        
+        $userInfo = UserInfo::where('user_id', $user->id)->first();
 
-        $path = $request->file('avatar')->storeAs('public/images/avatar', $fileName);
-        return substr($path, strlen('public/images/avatar/'));
+        $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/avatar', $userInfo->avatar, $user->username);
 
-      }
+        $userInfo->avatar = $image;
+        $userInfo->save();
+
+        return response()->json([
+            'statusCode' => 200,
+            'message' => 'Cập nhật thành công!'
+        ], 200);
+    }
+
+    
 }

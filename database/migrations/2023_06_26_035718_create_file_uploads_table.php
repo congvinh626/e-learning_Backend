@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('file_uploads', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('name_table');
             $table->string('type');
+            $table->string('file_path');
             $table->unsignedBigInteger('lesson_id');
             $table->foreign('lesson_id')->references('id')->on('lessons')->onDelete('cascade');
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CourseRequest;
 use App\Models\Course;
 use App\Models\User;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,6 +14,13 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     public function index(Request $request)
     {
         $userCourses = $request->user()->courses();
@@ -33,7 +41,13 @@ class CourseController extends Controller
     {
         $user = Auth::user()->id;
         $course = new Course();
+
         $course->fill($request->all());
+
+        $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', '', $request->slug);
+
+        $course->avatar = $image;
+        
         $course->save();
         $course->users()->attach($user);
 
@@ -49,6 +63,8 @@ class CourseController extends Controller
     public function show(string $slug)
     {
         $course = Course::where('slug', $slug)->first();
+        $course->avatar = '/storage/images/course/'.$course->avatar;
+
         return $course;
     }
 
@@ -58,7 +74,12 @@ class CourseController extends Controller
     public function update(CourseRequest $request)
     {
         $course = Course::findOrFail($request->id);
+        // return $course->avatar;
         $course->fill($request->all());
+
+        $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', $course->avatar, $request->slug);
+
+        $course->avatar = $image;
         $course->save();
         return response()->json([
             'statusCode' => 200,

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('name')->nullable();
             $table->string('phone')->nullable();
-            $table->time('dob')->nullable();
+            $table->datetime('dob')->nullable();
             $table->string('adress')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();

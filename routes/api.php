@@ -3,11 +3,13 @@
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RegisterControler;
 use App\Http\Controllers\UserController;
+use GuzzleHttp\Psr7\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\Console\Output\AnsiColorMode;
@@ -66,12 +68,17 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::get('/user', [UserController::class, 'show']);
     Route::post('/user/update', [UserController::class, 'update']);
-    Route::post('/user', [UserController::class, 'store']);
     Route::post('/avatar', [UserController::class, 'avatar']);
 
+    Route::post('/importExam', [ExamController::class, 'importExam']);
+
+
+    // Route::post('/fileUpload', [LessonController::class, 'fileUpload']);
+    Route::delete('/fileUpload/{id}', [FileUploadController::class, 'destroy']);
+
 });
 
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });

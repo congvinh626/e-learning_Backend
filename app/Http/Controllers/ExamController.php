@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ExamRequest;
+use App\Imports\ExamImport;
 use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExamController extends Controller
 {
+
+   
+
     /**
      * Display a listing of the resource.
      */
@@ -110,4 +115,15 @@ class ExamController extends Controller
 
         return $arr;
     }
+
+    public function importExam(Request $request){
+        Excel::import(new ExamImport($request->examId), $request->file('file'));
+
+        return response()->json([
+            'statusCode' => 200,
+            'message' => 'Import thành công!'
+        ], 200);
+    }
+
+    
 }

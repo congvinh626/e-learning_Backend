@@ -13,7 +13,9 @@ class FileUpload extends Model
 
     protected $fillable = [
         'name',
-        'lesson_id',
+        'type',
+        'name_table',
+        'lesson_id'
     ];
 
     public function lesson(){

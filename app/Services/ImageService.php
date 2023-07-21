@@ -1,43 +1,52 @@
 <?php
 
 namespace App\Services;
-use ImageIntervention;
 
+use Illuminate\Support\Facades\File;
+use ImageIntervention;
+use stdClass;
 class ImageService
 {
-    public function updateImage($image, $path)
+    public function storeImage($file, $pathToFile, $nameFile, $createName)
     {
-        $image = ImageIntervention::make($request->file('image'));
+        if ($nameFile) {
+            $file_path = storage_path() . '/app/' . $pathToFile . '/' . $nameFile;
+            if (File::exists($file_path)) {
 
-        if (!empty($model->image)) {
-            $currentImage = public_path() . $path . $model->image;
-
-            if (file_exists($currentImage)) {
-                unlink($currentImage);
+                unlink($file_path);
             }
         }
 
-        $file = $request->file('image');
-        $extension = $file->getClientOriginalExtension();
+        $fileName = $createName . '_' .  time() . '.' . $file->extension();
 
-        $image->crop(300, 300);
+        $path = $file->storeAs($pathToFile, $fileName);
+        return substr($path, strlen($pathToFile . '/'));
+    }
 
-        $name = time() . '.' . $extension;
-        $image->save(public_path() . $path . $name);
+    public function fileUpload($files, $pathToFile)
+    {
+        
+        foreach ($files as $file) {
+            $nameFile =  time() .'_'. $file->getClientOriginalName();
+            $file->storeAs($pathToFile, $nameFile);
 
-        if ($methodType === 'store') {
-            $model->user_id = $request->get('user_id');
+            $temp = new stdClass;
+            $temp->name = $nameFile;
+            $temp->type = $file->extension();
+            $data[] = $temp;
         }
+        
+        return $data;
+    }
 
-        $model->image = $name;
-
-        $model->save();
-
-
-
-        $name = time().'.' . explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
-        ImageIntervention::make($image)->save(public_path($path).$name);
-
-        return $name;
+    public function removeFileInStorage($file_uploads)
+    {
+        
+        foreach ($file_uploads as $file_upload) {
+            $file_path = storage_path() . '/app/' . $file_upload->file_path;
+            unlink($file_path);
+        }
+        
+        return 'ok';
     }
 }
