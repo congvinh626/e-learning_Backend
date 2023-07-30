@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->text('title');
+            $table->string('thumbnail')->nullable();
             $table->string('level')->nullable();
             $table->unsignedBigInteger('exam_id');
-            $table->unsignedBigInteger('file_upload_id')->nullable();
             $table->foreign('exam_id')->references('id')->on('exams')->onDelete('cascade');
-            $table->foreign('file_upload_id')->references('id')->on('file_uploads')->onDelete('cascade');
 
             $table->timestamps();
         });

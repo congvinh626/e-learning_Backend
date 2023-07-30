@@ -28,7 +28,7 @@ class LessonRequest extends FormRequest
         return [
             'title' => 'required',
             'slug' => 'required|unique:lessons',
-            'course_id' => 'required|numeric',
+            'course_slug' => 'required',
 
         ];
     }
@@ -48,8 +48,7 @@ class LessonRequest extends FormRequest
             'slug.required' => 'Slug bắt buộc nhập!',
             'slug.unique' => 'Slug đã tồn tại!',
 
-            'course_id.required' => 'Mã khóa học bắt buộc nhập!',
-            'course_id.numeric' => 'Mã khóa học không hợp lệ!',
+            'course_slug.required' => 'Mã khóa học bắt buộc nhập!',
 
         ];
     }

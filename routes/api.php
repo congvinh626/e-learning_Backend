@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\Console\Output\AnsiColorMode;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,12 +28,11 @@ use Symfony\Component\Console\Output\AnsiColorMode;
 
 Route::post('/register', [RegisterControler::class, 'register']);
 Route::post('/login', [RegisterControler::class, 'login']);
+Route::post('/resend', [RegisterControler::class, 'resend']);
+Route::post('/verifyOtp', [RegisterControler::class, 'verifyOtp']);
 
 
-// Route::post('/register', 'Regis@register');
-// Route::post('/register', function(){
-//     return 3333;
-// });
+
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/course', [CourseController::class, 'index']);
     Route::get('/course/{slug}', [CourseController::class, 'show']);

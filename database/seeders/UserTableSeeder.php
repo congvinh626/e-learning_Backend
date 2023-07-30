@@ -43,9 +43,9 @@ class UserTableSeeder extends Seeder
         $Exam = new Exam();
         $Exam->title = 'bai-kiem-tra';
         $Exam->time = 5;
-        $Exam->showResult = 1;
+        $Exam->showResult = true;
         $Exam->lesson_id = 1;
-        $Exam->slug = 'bai-kiem-tra-1';
+        $Exam->slug = 'bai-kiem-tra-12';
         $Exam->save();
 
         $Question = new Question();

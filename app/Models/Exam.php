@@ -24,7 +24,10 @@ class Exam extends Model
     ];
 
     protected $casts = [
-        'classify' => 'array'
+        'classify' => 'array',
+        'startTime' => 'datetime',
+        'endTime' => 'datetime',
+        'showResult' => 'boolean'
    ];
 
     public function course(){

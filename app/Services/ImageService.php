@@ -25,7 +25,8 @@ class ImageService
 
     public function fileUpload($files, $pathToFile)
     {
-        
+        // return count($files) ;
+        // dd($files);
         foreach ($files as $file) {
             $nameFile =  time() .'_'. $file->getClientOriginalName();
             $file->storeAs($pathToFile, $nameFile);

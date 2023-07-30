@@ -8,6 +8,7 @@ use App\Models\FileUpload;
 use App\Models\Lesson;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
 class LessonController extends Controller
@@ -32,20 +33,25 @@ class LessonController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(LessonRequest $request)
     {
+        $course = Course::where('slug', $request->course_slug)->first();
         $lesson = new Lesson();
         $lesson->fill($request->all());
+        $lesson->link = 'https://www.youtube.com/embed/'. basename($request->link);
+        $lesson->course_id = $course->id;
         $lesson->save();
 
         if ($request->hasfile('file')) {
-            $listFile =  $this->imageService->fileUpload($request->file()['file'], 'public/images/lessons');
+            $username = Auth::user()->username;
+
+            $listFile =  $this->imageService->fileUpload($request->file()['file'], 'public/docs/' . $username);
             foreach ($listFile as $file) {
                 $fileUpload = new FileUpload();
                 $fileUpload->name = $file->name;
                 $fileUpload->type = $file->type;
                 $fileUpload->lesson_id = $lesson->id;
-                $fileUpload->file_path = "public/images/lessons/" . $fileUpload->name;
+                $fileUpload->file_path = "public/docs/" . $username . '/' . $fileUpload->name;
                 $fileUpload->name_table = "lessons";
                 $fileUpload->save();
             }
@@ -63,6 +69,17 @@ class LessonController extends Controller
     public function show(string $slug)
     {
         $lesson = Lesson::where('slug', $slug)->first();
+        $fileUploads = FileUpload::where('lesson_id', $lesson->id)->get();
+
+        $username = Auth::user()->username;
+
+        foreach ($fileUploads as $file) {
+            $files[] = '/storage/docs/'. $username. '/'. $file->name;
+        }
+
+
+        $lesson->fileUp =  $files;
+        // $lesson->fileUploads;
         return $lesson;
     }
 

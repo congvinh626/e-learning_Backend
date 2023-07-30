@@ -15,16 +15,17 @@ class Question extends Model
         'title',
         'level',
         'exam_id',
-        'file_upload_id'
+        'thumbnail'
     ];
+    public $timestamps = false;
 
     public function exam(){
         return $this->belongsTo(Exam::class);
     }
 
-    public function fileUpload(){
-        return $this->belongsTo(FileUpload::class);
-    }
+    // public function fileUpload(){
+    //     return $this->belongsTo(FileUpload::class);
+    // }
 
     public function answers(){
         return $this->hasMany(Answer::class);

@@ -26,13 +26,21 @@ class CourseController extends Controller
         $userCourses = $request->user()->courses();
         $userCourses = $userCourses->where('status', $request->status);
 
-        if($request->searchText){
+        if ($request->searchText) {
             $userCourses = $userCourses->where('title', 'like', "%$request->searchText%");
         }
         $userCourses = $userCourses->paginate($request->pageSize);
-        // $userCourses = $userCourses->paginate()->toArray();
+
+        $userCourses->each(function ($course) {
+            if ($course->avatar) {
+                $course->avatar ='/storage/images/course/' . $course->avatar;
+            }
+        });
+        // return request()->server('SERVER_NAME');
         return $userCourses;
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -44,10 +52,11 @@ class CourseController extends Controller
 
         $course->fill($request->all());
 
-        $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', '', $request->slug);
+        if ($request->file()) {
+            $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', '', $request->slug);
+            $course->avatar = $image;
+        }
 
-        $course->avatar = $image;
-        
         $course->save();
         $course->users()->attach($user);
 
@@ -63,7 +72,7 @@ class CourseController extends Controller
     public function show(string $slug)
     {
         $course = Course::where('slug', $slug)->first();
-        $course->avatar = '/storage/images/course/'.$course->avatar;
+        $course->avatar = '/storage/images/course/' . $course->avatar;
 
         return $course;
     }
@@ -93,8 +102,8 @@ class CourseController extends Controller
     public function destroy(string $slug)
     {
         $course = Course::where('slug', $slug)->first();
-        Course::destroy( $course->id);
-        
+        Course::destroy($course->id);
+
         return response()->json([
             'statusCode' => 200,
             'message' => 'Xóa khóa học thành công!'
@@ -113,5 +122,4 @@ class CourseController extends Controller
             'message' => 'Thay đổi trạng thái thành công!'
         ], 200);
     }
-    
 }

@@ -15,15 +15,15 @@ class Answer extends Model
         'title',
         'result',
         'question_id',
-        'file_upload_id'
+        'thumbnail'
     ];
 
     public function question(){
         return $this->belongsTo(Question::class);
     }
 
-    public function fileUpload(){
-        return $this->belongsTo(fileUpload::class);
-    }
+    // public function fileUpload(){
+    //     return $this->belongsTo(fileUpload::class);
+    // }
 
 }

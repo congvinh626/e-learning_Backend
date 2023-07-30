@@ -16,10 +16,11 @@ class Lesson extends Model
         'slug',
         'description',
         'link',
-        'course_id'
+        // 'course_id'
     ];
 
-
+    public $timestamps = false;
+    
     public function course(){
         return $this->belongsTo(Course::class);
     }

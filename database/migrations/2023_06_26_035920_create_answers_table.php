@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->text('title');
             $table->boolean('result');
+            $table->string('thumbnail')->nullable();
+
             $table->unsignedBigInteger('question_id');
-            $table->unsignedBigInteger('file_upload_id')->nullable();
             $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
-            $table->foreign('file_upload_id')->references('id')->on('file_uploads')->onDelete('cascade');
 
             $table->timestamps();
         });

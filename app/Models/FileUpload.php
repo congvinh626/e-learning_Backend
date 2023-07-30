@@ -18,8 +18,8 @@ class FileUpload extends Model
         'lesson_id'
     ];
 
-    public function lesson(){
-        return $this->belongsTo(Lesson::class);
-    }
+    // public function lesson(){
+    //     return $this->belongsTo(Lesson::class);
+    // }
 
 }
