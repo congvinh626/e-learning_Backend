@@ -10,6 +10,7 @@ use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use stdClass;
 
 class LessonController extends Controller
 {
@@ -26,9 +27,21 @@ class LessonController extends Controller
     public function index(string $slug)
     {
         $course = Course::where('slug', $slug)->first();
-        $course->lessons;
-        return $course;
+    
+            $lessons = $course->lessons()->get(['id', 'title' , 'slug']);
+            foreach ($lessons as $lesson) {
+                // Lấy ra danh sách exams liên kết với từng lesson
+                $lesson->exams;
+
+                $file = $lesson->fileUploads()->get(['id', 'name', 'type']);
+                $lesson->files = $file;
+
+            }
+            $course->lessons = $lessons;
+            return $course;
+        // return response()->json('Không tìm thấy khóa học');
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -70,16 +83,19 @@ class LessonController extends Controller
     {
         $lesson = Lesson::where('slug', $slug)->first();
         $fileUploads = FileUpload::where('lesson_id', $lesson->id)->get();
+        if(count($fileUploads) > 0){
+            $username = Auth::user()->username;
 
-        $username = Auth::user()->username;
-
-        foreach ($fileUploads as $file) {
-            $files[] = '/storage/docs/'. $username. '/'. $file->name;
+            foreach ($fileUploads as $file) {
+                $temp = new stdClass;
+                $temp->id = $file->id;
+                $temp->name = $file->name;
+                $temp->path = '/storage/docs/'. $username. '/'. $file->name;
+                $files[] = $temp;
+            }
+            $lesson->files =  $files;
         }
-
-
-        $lesson->fileUp =  $files;
-        // $lesson->fileUploads;
+        
         return $lesson;
     }
 
@@ -87,7 +103,7 @@ class LessonController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(LessonRequest $request)
+    public function update(Request $request)
     {
         $lesson = Lesson::findOrFail($request->id);
         $lesson->fill($request->all());

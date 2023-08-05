@@ -20,6 +20,8 @@ class Course extends Model
         'status'
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
+    
     public function users(){
         return $this->belongsToMany(User::class, 'course_user');
         // return $this->belongsToMany(Category::class, 'categoriy_post')->withPivot('value');

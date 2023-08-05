@@ -18,6 +18,9 @@ class Answer extends Model
         'thumbnail'
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
+    
     public function question(){
         return $this->belongsTo(Question::class);
     }

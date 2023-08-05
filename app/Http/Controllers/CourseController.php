@@ -86,9 +86,13 @@ class CourseController extends Controller
         // return $course->avatar;
         $course->fill($request->all());
 
-        $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', $course->avatar, $request->slug);
-
-        $course->avatar = $image;
+        if ($request->file()) {
+            $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', $course->avatar, $request->slug);
+            $course->avatar = $image;
+        }
+        // else{
+        //     $course->avatar = $course->avatar;
+        // }
         $course->save();
         return response()->json([
             'statusCode' => 200,

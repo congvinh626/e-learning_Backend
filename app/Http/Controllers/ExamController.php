@@ -36,8 +36,25 @@ class ExamController extends Controller
     public function store(ExamRequest $request)
     {
         $exam = new Exam();
-        $exam->fill($request->all());
-        $exam->save();
+        $exam->fill($request->item->all());
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $validExtensions = ['xlsx', 'xls'];
+    
+            if (!in_array($extension, $validExtensions)) {
+                return response()->json([
+                    'statusCode' => 400,
+                    'message' => 'Tệp không đúng định dạng Excel.'
+                ], 400);
+            }
+    
+            $exam->save();
+            Excel::import(new ExamImport($exam->id), $file);
+        } else {
+            $exam->save();
+        }
 
         return response()->json([
             'statusCode' => 200,
@@ -122,7 +139,7 @@ class ExamController extends Controller
         return response()->json([
             'statusCode' => 200,
             'message' => 'Import thành công!'
-        ], 200);
+        ], 200); 
     }
 
     

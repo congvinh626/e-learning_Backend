@@ -30,6 +30,9 @@ class Exam extends Model
         'showResult' => 'boolean'
    ];
 
+   protected $hidden = ['created_at', 'updated_at'];
+
+   
     public function course(){
         return $this->belongsTo(Lesson::class);
     }
