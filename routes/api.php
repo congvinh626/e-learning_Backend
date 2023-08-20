@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FileUploadController;
@@ -58,6 +59,11 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/question', [QuestionController::class, 'store']);
     Route::post('/question/update', [QuestionController::class, 'update']);
     Route::delete('/question/{id}', [QuestionController::class, 'destroy']);
+
+    Route::get('/comment/{slug}', [CommentController::class, 'index']);
+    Route::post('/comment', [CommentController::class, 'store']);
+    Route::post('/comment/update', [CommentController::class, 'update']);
+    Route::delete('/comment/{id}', [CommentController::class, 'destroy']);
 
     Route::post('/answer', [AnswerController::class, 'store']);
     Route::post('/answer/update', [AnswerController::class, 'update']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ExamRequest;
 use App\Imports\ExamImport;
+use App\Models\Answer;
 use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
@@ -36,8 +37,10 @@ class ExamController extends Controller
     public function store(ExamRequest $request)
     {
         $exam = new Exam();
-        $exam->fill($request->item->all());
-
+        $exam->fill($request->all());
+        if($request->classify){
+            $exam->classify = explode(",", $request->classify);
+        }
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $extension = $file->getClientOriginalExtension();
@@ -52,6 +55,29 @@ class ExamController extends Controller
     
             $exam->save();
             Excel::import(new ExamImport($exam->id), $file);
+        }
+        else if($request->importQuestion){
+            $exam->save();
+
+            $jsonlistQuestion = json_decode($request->importQuestion);
+            foreach($jsonlistQuestion as $questionItem) {
+                $question = new Question([
+                    'title' => $questionItem->question,
+                    'level' => $questionItem->type,
+                    'exam_id' => $exam->id,
+                    // 'file_upload_id' => $row[5]
+                ]);
+                $question->save();
+
+                foreach($questionItem->answers as $answerItem) {
+                    $answer = new Answer([
+                        'title' => $answerItem->title,
+                        'result' => $answerItem->correct,
+                        'question_id' => $question->id,
+                    ]);
+                    $answer->save();
+                }
+            }
         } else {
             $exam->save();
         }
@@ -102,16 +128,17 @@ class ExamController extends Controller
     public function getExam(string $slug)
     {
         $exam = Exam::where('slug', $slug)->first();
-        $data = $exam->classify;
+        $classify = $exam->classify;
         $arr = [];
 
         // lấy ra danh sách câu hỏi và câu trả lời
-        if ($data) {
-            for ($i = 0; $i < count($data); $i++) {
+        if ($classify) {
+            for ($i = 0; $i < count($classify); $i++) {
                 $questionsWithAnswers = Question::where('exam_id', $exam->id)->where('level', $i + 1)
                     ->with(['answers' => function ($query) {
+                        $query->select('id');
                         $query->inRandomOrder();
-                    }])->take($data[$i])->get()->toArray();
+                    }])->take($classify[$i])->get()->toArray();
 
                 $arr = array_merge($arr, $questionsWithAnswers);
                 shuffle($arr);
@@ -119,7 +146,7 @@ class ExamController extends Controller
         } else {
             $questionsWithAnswers = Question::where('exam_id', $exam->id)
                 ->with(['answers' => function ($query) {
-                    $query->inRandomOrder();
+                    $query->select('id','title', 'question_id')->inRandomOrder();
                 }])->inRandomOrder();
             if ($exam->numberOfQuestion) {
                 $arr = $questionsWithAnswers->take($exam->numberOfQuestion)->get();
@@ -128,9 +155,9 @@ class ExamController extends Controller
             }
         }
 
+        $exam->question = $arr;
 
-
-        return $arr;
+        return $exam;
     }
 
     public function importExam(Request $request){
