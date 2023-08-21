@@ -4,45 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\HistoryRequest;
 use App\Models\Answer;
+use App\Models\Exam;
 use App\Models\History;
 use App\Models\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HistoryController extends Controller
 {
     public function show(string $id)
     {
-        $exam = History::find($id);
-        $arrHistory = array();
-       
-        foreach ($exam->history as $item) {
-            $question = Question::where('id', $item['question_id']);
-            $question = $question->with('answers')->get()
-            ->map(function ($question) use ($item) {
-                $answers = $question->answers->map(function ($answer) use ($item) {
-                    $answer->checked = $answer->id == $item['answer_id'];
-                    return $answer;
-                });
-                $question->answers = $answers;
-                return $question;
-            })->toArray();
-           
-            $arrHistory = array_merge($arrHistory, $question);
+        $user_id = Auth::user()->id;
+        $history = History::findOrFail($id);
+        if($history->user_id != $user_id){
+            return  statusResponse(400, 'Bạn không có quyền truy cập!');
         }
-       
-        return $arrHistory;
-    }
 
-    public function store(HistoryRequest $request)
-    {
-        // return 12312;
-        $exam = new History();
-        $exam->fill($request->all());
-        $exam->save();
+        $showResult = Exam::where('id', $history->exam_id)->first()->showResult;
+        if($showResult == 0){
+            return  statusResponse(400, 'Bạn không có quyền truy cập!');
+        }
 
+        $array = collect();
+
+        foreach ($history->history as $item) {
+            $question = Question::findOrFail($item['question_id']);
+            $question->selected = $item['answer_id'];
+            $question->answers;
+            $array->push($question);
+        }
+
+    
         return response()->json([
             'statusCode' => 200,
-            'message' => 'Thêm mới thành công!'
-        ], 200);
+            'data' => $array
+        ], 200); 
     }
 }

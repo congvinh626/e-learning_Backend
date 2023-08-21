@@ -6,8 +6,10 @@ use App\Http\Requests\ExamRequest;
 use App\Imports\ExamImport;
 use App\Models\Answer;
 use App\Models\Exam;
+use App\Models\History;
 use App\Models\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExamController extends Controller
@@ -120,9 +122,9 @@ class ExamController extends Controller
         Exam::destroy($exam->id);
 
         return response()->json([
-            'statusCode' => 200,
-            'message' => 'Xóa bài kiểm tra thành công!'
-        ], 200);
+            'statusCode' => 400,
+            'message' => 'Bạn không có quyền truy cập!'
+        ], 400);
     }
 
     public function getExam(string $slug)
@@ -169,5 +171,38 @@ class ExamController extends Controller
         ], 200); 
     }
 
+    public function uploadExam(Request $request){
+
+        $convRequest = collect($request->listItem);
+
+        // lấy danh sách các answer_id của request
+        $filtered = $convRequest->pluck('answer_id')->filter(); 
+        $ids = $filtered->values()->all();
+
+        // lấy ra các result của những id trên
+        $resultOfAnswer = Answer::whereIn('id', $ids)->pluck('result');
+        $numberOfCorrectAnswers = $resultOfAnswer->sum();
+        $sumRequest = count($convRequest);
+        $scores = round(10 / $sumRequest * $numberOfCorrectAnswers, 2);
+
+        $history = new History();
+        $history->history = $request->listItem;
+        $history->scores = $scores;
+        $history->exam_id = $request->exam_id;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json([
+            'statusCode' => 200,
+            'data' => [
+                'history' => $history->id,
+                'numberOfCorrectAnswers' => $numberOfCorrectAnswers.' / '.$sumRequest,
+                'scores' => $scores
+            ]
+        ], 200); 
+    }
+
+    
+    
     
 }
