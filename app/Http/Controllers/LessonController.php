@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use stdClass;
+use Carbon\Carbon;
 
 class LessonController extends Controller
 {
@@ -28,18 +29,31 @@ class LessonController extends Controller
     {
         $course = Course::where('slug', $slug)->first();
     
-            $lessons = $course->lessons()->get(['id', 'title' , 'slug']);
-            foreach ($lessons as $lesson) {
-                // Lấy ra danh sách exams liên kết với từng lesson
-                $lesson->exams;
+        $lessons = $course->lessons()->get(['id', 'title' , 'slug']);
+        $now = Carbon::now();
 
-                $file = $lesson->fileUploads()->get(['id', 'name', 'type']);
-                $lesson->files = $file;
+        foreach ($lessons as $lesson) {
+            // Lấy ra danh sách exams liên kết với từng lesson
+            foreach($lesson->exams as $exam){
+                $startTime = Carbon::parse($exam->startTime);
+                $endTime = Carbon::parse($exam->endTime);
 
+                // So sánh
+                if ($now->lessThan($startTime)) {
+                    $exam->checkTime = "Chưa mở";
+                } elseif ($now->greaterThan($startTime) && $now->lessThan($endTime)) {
+                    $exam->checkTime = "Đã mở";
+                } elseif ($now->greaterThan($endTime) ) {
+                    $exam->checkTime = "Hết hạn";
+                }
             }
-            $course->lessons = $lessons;
-            return $course;
-        // return response()->json('Không tìm thấy khóa học');
+            $lesson->exams;
+            $file = $lesson->fileUploads()->get(['id', 'name', 'type']);
+            $lesson->files = $file;
+
+        }
+        $course->lessons = $lessons;
+        return $course;
     }
 
 

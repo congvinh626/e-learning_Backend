@@ -95,7 +95,10 @@ class ExamController extends Controller
      */
     public function show(string $slug)
     {
+        $user_id = Auth::user()->id;
         $exam = Exam::where('slug', $slug)->first();
+        $history = History::where('exam_id', $exam->id)->where('user_id', $user_id)->count();
+        $exam->history = $history;
         return $exam;
     }
 
@@ -172,7 +175,6 @@ class ExamController extends Controller
     }
 
     public function uploadExam(Request $request){
-
         $convRequest = collect($request->listItem);
 
         // lấy danh sách các answer_id của request
@@ -185,10 +187,12 @@ class ExamController extends Controller
         $sumRequest = count($convRequest);
         $scores = round(10 / $sumRequest * $numberOfCorrectAnswers, 2);
 
+        $exam = Exam::where('slug', $request->exam_slug)->first();
+
         $history = new History();
         $history->history = $request->listItem;
         $history->scores = $scores;
-        $history->exam_id = $request->exam_id;
+        $history->exam_id = $exam->id;
         $history->user_id = Auth::user()->id;
         $history->save();
 
@@ -197,7 +201,8 @@ class ExamController extends Controller
             'data' => [
                 'history' => $history->id,
                 'numberOfCorrectAnswers' => $numberOfCorrectAnswers.' / '.$sumRequest,
-                'scores' => $scores
+                'scores' => $scores,
+                'showResult' => $exam->showResult
             ]
         ], 200); 
     }

@@ -20,7 +20,8 @@ class Exam extends Model
         'endTime',
         'classify',
         'showResult',
-        'lesson_id'
+        'lesson_id',
+        'numberOfExam'
     ];
 
     protected $casts = [

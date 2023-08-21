@@ -20,10 +20,12 @@ class HistoryController extends Controller
             return  statusResponse(400, 'Bạn không có quyền truy cập!');
         }
 
-        $showResult = Exam::where('id', $history->exam_id)->first()->showResult;
-        if($showResult == 0){
+        $showResult = Exam::where('id', $history->exam_id)->first();
+        if($showResult->showResult == 0){
             return  statusResponse(400, 'Bạn không có quyền truy cập!');
         }
+
+
 
         $array = collect();
 
@@ -34,10 +36,12 @@ class HistoryController extends Controller
             $array->push($question);
         }
 
-    
         return response()->json([
             'statusCode' => 200,
-            'data' => $array
+            'data' => [
+                "title" => $showResult->title,
+                "question" => $array
+            ]
         ], 200); 
     }
 }

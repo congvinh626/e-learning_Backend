@@ -54,7 +54,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/exam/update', [ExamController::class, 'update']);
     Route::delete('/exam/{slug}', [ExamController::class, 'destroy']);
     Route::get('/getExam/{slug}', [ExamController::class, 'getExam']);
-    Route::post('/uploadExam', [ExamController::class, 'uploadExam']);
+    Route::put('/uploadExam', [ExamController::class, 'uploadExam']);
     
     // Route::get('/exam/{slug}', [ExamController::class, 'show']);
     Route::post('/question', [QuestionController::class, 'store']);
