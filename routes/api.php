@@ -41,7 +41,11 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/course/update', [CourseController::class, 'update']);
     Route::delete('/course/{slug}', [CourseController::class, 'destroy']);
     Route::post('/course/changeStatus/{slug}', [CourseController::class, 'changeStatus']);
-
+    Route::post('/course/register', [CourseController::class, 'register']);
+    Route::post('/course/addMember', [CourseController::class, 'addMember']);
+    Route::post('/course/removeMember', [CourseController::class, 'removeMember']);
+    Route::get('/course/waitConfirmMember/{id}', [CourseController::class, 'waitConfirmMember']);
+    
     Route::get('/course/lesson/{slug}', [LessonController::class, 'index']);
     Route::get('/lesson/{slug}', [LessonController::class, 'show']);
     Route::post('/lesson', [LessonController::class, 'store']);

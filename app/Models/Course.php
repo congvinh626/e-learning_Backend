@@ -23,7 +23,7 @@ class Course extends Model
     protected $hidden = ['created_at', 'updated_at'];
     
     public function users(){
-        return $this->belongsToMany(User::class, 'course_user');
+        return $this->belongsToMany(User::class, 'course_user')->withPivot('user_create', 'confirm');
         // return $this->belongsToMany(Category::class, 'categoriy_post')->withPivot('value');
     }
 

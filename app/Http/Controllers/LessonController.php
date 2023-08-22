@@ -6,12 +6,14 @@ use App\Http\Requests\LessonRequest;
 use App\Models\Course;
 use App\Models\FileUpload;
 use App\Models\Lesson;
+use App\Models\UserInfo;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use stdClass;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class LessonController extends Controller
 {
@@ -28,8 +30,16 @@ class LessonController extends Controller
     public function index(string $slug)
     {
         $course = Course::where('slug', $slug)->first();
-    
+        $course_user = $course->users();
+        $idTeacher = $course_user->first()->id;
+
+        $course->nameTeacher = UserInfo::find($idTeacher)->name;
+        $course->numberOfMember = $course_user->count();
+
+        $course->numberOfMemberWaiting = $course_user->where('confirm', false)->count();
         $lessons = $course->lessons()->get(['id', 'title' , 'slug']);
+        $course->numberOfLesson = $lessons->count();
+
         $now = Carbon::now();
 
         foreach ($lessons as $lesson) {
