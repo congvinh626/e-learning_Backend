@@ -6,7 +6,9 @@ use App\Http\Requests\LessonRequest;
 use App\Models\Course;
 use App\Models\FileUpload;
 use App\Models\Lesson;
+use App\Models\User;
 use App\Models\UserInfo;
+use App\Notifications\TestNotification;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -164,4 +166,25 @@ class LessonController extends Controller
         $image =  $this->imageService->fileUpload($request->file()['file'], 'public/images/lessons');
         return $image;
     }
+
+    
+
+    public function pushNotification(Request $request)
+    {
+        $user = User::find(1); // id của user mình đã đăng kí ở trên, user này sẻ nhận được thông báo
+        $data = $request->only([
+            'title',
+            'content',
+        ]);
+        $user->notify(new TestNotification($data));
+
+    }
+
+    public function getNotification()
+    {
+        $user = Auth::user();
+        $notifications = $user->notifications;
+        return $notifications;
+    }
+
 }

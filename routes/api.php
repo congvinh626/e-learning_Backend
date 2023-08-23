@@ -52,6 +52,10 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/lesson/update', [LessonController::class, 'update']);
     Route::delete('/lesson/{slug}', [LessonController::class, 'destroy']);
 
+
+    Route::post('/notification', [LessonController::class, 'pushNotification']);
+    Route::get('/notification', [LessonController::class, 'getNotification']);
+
     // Route::get('/exam/{slug}', [LessonController::class, 'index']);
     Route::get('/exam/{slug}', [ExamController::class, 'show']);
     Route::post('/exam', [ExamController::class, 'store']);
