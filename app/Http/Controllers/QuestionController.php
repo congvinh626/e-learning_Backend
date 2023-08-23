@@ -19,14 +19,14 @@ class QuestionController extends Controller
    
     public function store(QuestionRequest $request)
     {
-        $question = new Question();
-        $question->fill($request->all());
-        $question->save();
+        if ($request->user()->can('question-create')) {
+            $question = new Question();
+            $question->fill($request->all());
+            $question->save();
 
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Thêm mới thành công!'
-        ], 200);
+            return statusResponse(200,"Thêm mới thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     /**
@@ -34,24 +34,24 @@ class QuestionController extends Controller
      */
     public function update(Request $request)
     {
-        $question = Question::findOrFail($request->id);
-        $question->fill($request->all());
-        $question->save();
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        if ($request->user()->can('question-update')) {
+            $question = Question::findOrFail($request->id);
+            $question->fill($request->all());
+            $question->save();
+            return statusResponse(200,"Cập nhật thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        Question::destroy( $id);
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Xóa câu hỏi thành công!'
-        ], 200);
+        if ($request->user()->can('question-delete')) {
+            Question::destroy( $id);
+            return statusResponse(200,"Xóa câu hỏi thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 }

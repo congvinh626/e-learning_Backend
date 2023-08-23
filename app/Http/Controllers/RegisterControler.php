@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserInfo;
 use App\Notifications\EmailVerificationNotification;
@@ -28,6 +29,18 @@ class RegisterControler extends Controller
         $userInfo = new UserInfo();
         $userInfo->user_id = $user->id;
         $userInfo->save();
+        
+        if($request->type == 1){
+            $user->roles()->attach(2);
+            $role = Role::findOrFail(2); 
+        }else{
+            $user->roles()->attach(3);
+            $role = Role::findOrFail(3); 
+        }
+        $permissions_role = $role->permissions->pluck('id');
+        $user->permissions()->attach($permissions_role);
+        // $user->givePermissionsTo($permissions_role);
+
 
         $user->notify(new EmailVerificationNotification());
 

@@ -63,6 +63,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::delete('/exam/{slug}', [ExamController::class, 'destroy']);
     Route::get('/getExam/{slug}', [ExamController::class, 'getExam']);
     Route::put('/uploadExam', [ExamController::class, 'uploadExam']);
+    Route::post('/importExam', [ExamController::class, 'importExam']);
     
     // Route::get('/exam/{slug}', [ExamController::class, 'show']);
     Route::post('/question', [QuestionController::class, 'store']);
@@ -84,7 +85,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/user/update', [UserController::class, 'update']);
     Route::post('/avatar', [UserController::class, 'avatar']);
 
-    Route::post('/importExam', [ExamController::class, 'importExam']);
 
 
     // Route::post('/fileUpload', [LessonController::class, 'fileUpload']);
@@ -95,6 +95,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/addManyPermissonsTo', [UserController::class, 'addManyPermissonsTo']);
     
     Route::post('/addPermissonsToRole', [UserController::class, 'addPermissonsToRole']);
+
+    Route::post('/upload-excel-create-role-permission', [UserController::class, 'createRolePermission']);
     
 });
 

@@ -38,56 +38,56 @@ class ExamController extends Controller
      */
     public function store(ExamRequest $request)
     {
-        $exam = new Exam();
-        $exam->fill($request->all());
-        if($request->classify){
-            $exam->classify = explode(",", $request->classify);
-        }
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $extension = $file->getClientOriginalExtension();
-            $validExtensions = ['xlsx', 'xls'];
-    
-            if (!in_array($extension, $validExtensions)) {
-                return response()->json([
-                    'statusCode' => 400,
-                    'message' => 'Tệp không đúng định dạng Excel.'
-                ], 400);
+        if ($request->user()->can('exam-create')) {
+
+            $exam = new Exam();
+            $exam->fill($request->all());
+            if($request->classify){
+                $exam->classify = explode(",", $request->classify);
             }
-    
-            $exam->save();
-            Excel::import(new ExamImport($exam->id), $file);
-        }
-        else if($request->importQuestion){
-            $exam->save();
-
-            $jsonlistQuestion = json_decode($request->importQuestion);
-            foreach($jsonlistQuestion as $questionItem) {
-                $question = new Question([
-                    'title' => $questionItem->question,
-                    'level' => $questionItem->type,
-                    'exam_id' => $exam->id,
-                    // 'file_upload_id' => $row[5]
-                ]);
-                $question->save();
-
-                foreach($questionItem->answers as $answerItem) {
-                    $answer = new Answer([
-                        'title' => $answerItem->title,
-                        'result' => $answerItem->correct,
-                        'question_id' => $question->id,
-                    ]);
-                    $answer->save();
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $extension = $file->getClientOriginalExtension();
+                $validExtensions = ['xlsx', 'xls'];
+        
+                if (!in_array($extension, $validExtensions)) {
+                    return response()->json([
+                        'statusCode' => 400,
+                        'message' => 'Tệp không đúng định dạng Excel.'
+                    ], 400);
                 }
+        
+                $exam->save();
+                Excel::import(new ExamImport($exam->id), $file);
             }
-        } else {
-            $exam->save();
-        }
+            else if($request->importQuestion){
+                $exam->save();
 
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Thêm mới thành công!'
-        ], 200);
+                $jsonlistQuestion = json_decode($request->importQuestion);
+                foreach($jsonlistQuestion as $questionItem) {
+                    $question = new Question([
+                        'title' => $questionItem->question,
+                        'level' => $questionItem->type,
+                        'exam_id' => $exam->id,
+                        // 'file_upload_id' => $row[5]
+                    ]);
+                    $question->save();
+
+                    foreach($questionItem->answers as $answerItem) {
+                        $answer = new Answer([
+                            'title' => $answerItem->title,
+                            'result' => $answerItem->correct,
+                            'question_id' => $question->id,
+                        ]);
+                        $answer->save();
+                    }
+                }
+            } else {
+                $exam->save();
+            }
+            return statusResponse(200,"Thêm mới thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     /**
@@ -107,27 +107,29 @@ class ExamController extends Controller
      */
     public function update(ExamRequest $request)
     {
-        $exam = Exam::findOrFail($request->id);
-        $exam->fill($request->all());
-        $exam->save();
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        if ($request->user()->can('exam-update')) {
+
+            $exam = Exam::findOrFail($request->id);
+            $exam->fill($request->all());
+            $exam->save();
+            
+            return statusResponse(200,"Cập nhật thành công!");
+
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $slug)
+    public function destroy(Request $request, string $slug)
     {
-        $exam = Exam::where('slug', $slug)->first();
-        Exam::destroy($exam->id);
-
-        return response()->json([
-            'statusCode' => 400,
-            'message' => 'Bạn không có quyền truy cập!'
-        ], 400);
+        if ($request->user()->can('exam-delete')) {
+            $exam = Exam::where('slug', $slug)->first();
+            Exam::destroy($exam->id);
+            return statusResponse(200,"Cập nhật thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     public function getExam(string $slug)
@@ -166,45 +168,48 @@ class ExamController extends Controller
     }
 
     public function importExam(Request $request){
-        Excel::import(new ExamImport($request->examId), $request->file('file'));
-
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Import thành công!'
-        ], 200); 
+        if ($request->user()->can('exam-import-excel')) {
+            Excel::import(new ExamImport($request->examId), $request->file('file'));
+            return statusResponse(200,"Import thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     public function uploadExam(Request $request){
-        $convRequest = collect($request->listItem);
+        if ($request->user()->can('exam-upload')) {
 
-        // lấy danh sách các answer_id của request
-        $filtered = $convRequest->pluck('answer_id')->filter(); 
-        $ids = $filtered->values()->all();
+            $convRequest = collect($request->listItem);
 
-        // lấy ra các result của những id trên
-        $resultOfAnswer = Answer::whereIn('id', $ids)->pluck('result');
-        $numberOfCorrectAnswers = $resultOfAnswer->sum();
-        $sumRequest = count($convRequest);
-        $scores = round(10 / $sumRequest * $numberOfCorrectAnswers, 2);
+            // lấy danh sách các answer_id của request
+            $filtered = $convRequest->pluck('answer_id')->filter(); 
+            $ids = $filtered->values()->all();
 
-        $exam = Exam::where('slug', $request->exam_slug)->first();
+            // lấy ra các result của những id trên
+            $resultOfAnswer = Answer::whereIn('id', $ids)->pluck('result');
+            $numberOfCorrectAnswers = $resultOfAnswer->sum();
+            $sumRequest = count($convRequest);
+            $scores = round(10 / $sumRequest * $numberOfCorrectAnswers, 2);
 
-        $history = new History();
-        $history->history = $request->listItem;
-        $history->scores = $scores;
-        $history->exam_id = $exam->id;
-        $history->user_id = Auth::user()->id;
-        $history->save();
+            $exam = Exam::where('slug', $request->exam_slug)->first();
 
-        return response()->json([
-            'statusCode' => 200,
-            'data' => [
-                'history' => $history->id,
-                'numberOfCorrectAnswers' => $numberOfCorrectAnswers.' / '.$sumRequest,
-                'scores' => $scores,
-                'showResult' => $exam->showResult
-            ]
-        ], 200); 
+            $history = new History();
+            $history->history = $request->listItem;
+            $history->scores = $scores;
+            $history->exam_id = $exam->id;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+
+            return response()->json([
+                'statusCode' => 200,
+                'data' => [
+                    'history' => $history->id,
+                    'numberOfCorrectAnswers' => $numberOfCorrectAnswers.' / '.$sumRequest,
+                    'scores' => $scores,
+                    'showResult' => $exam->showResult
+                ]
+            ], 200); 
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     

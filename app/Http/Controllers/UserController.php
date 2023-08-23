@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Imports\CreatePermissionImport;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserInfo;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use ImageIntervention;
 use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -66,61 +68,63 @@ class UserController extends Controller
 
     public function addRoleTo(request $request)
     {
-        $User = User::findOrFail($request->user_id);        
-        $User->roles()->attach($request->role_id);
+        if ($request->user()->can('add-role-to-user')) {
 
-        $role = Role::findOrFail($request->role_id); 
+            $User = User::findOrFail($request->user_id);        
+            $User->roles()->attach($request->role_id);
 
-        $permissions_user = DB::table('users_permissions')->where('user_id', $request->user_id)->pluck('permission_id')->toArray();
-        $permissions_role = $role->permissions->pluck('id')->toArray();
+            $role = Role::findOrFail($request->role_id); 
 
-        // if(count($permissions_user)){
+            $permissions_user = DB::table('users_permissions')->where('user_id', $request->user_id)->pluck('permission_id')->toArray();
+            $permissions_role = $role->permissions->pluck('id')->toArray();
+            $diffArray = array_values(array_diff($permissions_role, $permissions_user));
+            
+            $User->permissions()->attach($diffArray);
+            return statusResponse(200,"Cập nhật thành công!");
 
-        // }
-        $diffArray = array_values(array_diff($permissions_role, $permissions_user));
-        // $mergedPermissions = array_merge($permissions_user, $permissions_role);
-        // $uniquePermissions =  collect($mergedPermissions)->unique()->toArray();
-        // $User->roles()->attach($request->role_id);
-        $User->permissions()->attach($diffArray);
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     public function addPermissonsTo(request $request)
     {
-        $User = User::findOrFail($request->user_id);        
-
-        $User->permissions()->attach($request->permission_id);
-
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        if ($request->user()->can('add-permisson-to-user')) {
+            $User = User::findOrFail($request->user_id);        
+            $User->permissions()->attach($request->permission_id);
+            return statusResponse(200,"Cập nhật thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     public function addManyPermissonsTo(request $request)
     {
-        $User = User::findOrFail($request->user_id);        
-        $User->givePermissionsTo($request->permission_id);
-        
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        if ($request->user()->can('add-many-permisson-to-user')) {
+
+            $User = User::findOrFail($request->user_id);        
+            $User->givePermissionsTo($request->permission_id);
+            
+            return statusResponse(200,"Cập nhật thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
     public function addPermissonsToRole(request $request)
     {
-        $role = Role::findOrFail($request->role_id);        
-        $role->permissions()->attach($request->permission_id);
-
-        
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        if ($request->user()->can('add-permisson-to-role')) {
+            $role = Role::findOrFail($request->role_id);        
+            $role->permissions()->attach($request->permission_id);
+            
+            return statusResponse(200,"Cập nhật thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
+    }
+    
+    public function createRolePermission(Request $request){
+        if ($request->user()->can('upload-excel-create-role-permission')) {
+            Excel::import(new CreatePermissionImport(), storage_path('eleaning-role-permission.xlsx'));
+            return statusResponse(200,"Import thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
     }
     
     

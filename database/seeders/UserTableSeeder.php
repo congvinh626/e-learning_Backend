@@ -36,43 +36,6 @@ class UserTableSeeder extends Seeder
         $developer_delete->type = 2;
         $developer_delete->save();
 
-
-        
-
-        
-
-        $Exam = new Exam();
-        $Exam->title = 'bai-kiem-tra';
-        $Exam->time = 5;
-        $Exam->showResult = true;
-        $Exam->lesson_id = 1;
-        $Exam->slug = 'bai-kiem-tra-12';
-        $Exam->save();
-
-        $Question = new Question();
-        $Question->title = '2 + 2';
-        $Question->exam_id = 1;
-        $Question->save();
-
-        $Answer = new Answer();
-        $Answer->title = '1';
-        $Answer->result = 0;
-        $Answer->question_id = 1;
-        $Answer->save();
-
-        $Answer = new Answer();
-        $Answer->title = '2';
-        $Answer->result = 0;
-        $Answer->question_id = 1;
-        $Answer->save();
-
-        $Answer = new Answer();
-        $Answer->title = '4';
-        $Answer->result = 1;
-        $Answer->question_id = 1;
-        $Answer->save();
-
-
         $admin_role = new Role();
         $admin_role->slug = 'admin';
         $admin_role->name = 'Front-end Developer';
@@ -87,20 +50,6 @@ class UserTableSeeder extends Seeder
         $student_role->slug = 'student';
         $student_role->name = 'student';
         $student_role->save();
-
-        $createCourse = new Permission();
-        $createCourse->slug = 'create-course';
-        $createCourse->name = 'Thêm mới bài học';
-        $createCourse->save();
-
-        $editCourse = new Permission();
-        $editCourse->slug = 'edit-course';
-        $editCourse->name = 'Sửa bài học';
-        $editCourse->save();
-
-        $deleteCourse = new Permission();
-        $deleteCourse->slug = 'delete-course';
-        $deleteCourse->name = 'Xóa bài học';
-        $deleteCourse->save();
+      
     }
 }
