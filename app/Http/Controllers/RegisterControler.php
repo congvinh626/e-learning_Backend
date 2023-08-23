@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Otp;
 use DB;
+use Illuminate\Support\Str;
+use stdClass;
+
 class RegisterControler extends Controller
 {
 
@@ -34,10 +37,9 @@ class RegisterControler extends Controller
     public function resend(Request $request){
         $user = User::where('email', $request->email)->first();
         $user->notify(new EmailVerificationNotification());
-        return response()->json([
-            'statusCode' => 200,
-            'message' =>  'Gửi OTP thành công!'
-        ], 200);
+       
+        return statusResponse(200, 'Gửi OTP thành công!');
+
     }
 
     public function verifyOtp(Request $request){
@@ -53,10 +55,7 @@ class RegisterControler extends Controller
         $user->email_verified_at = time();
         $user->save();
         
-        return response()->json([
-            'statusCode' => 200,
-            'message' =>  'Thành công!'
-        ]);
+        return statusResponse(200, 'Thành công');
     }
 
     
@@ -66,18 +65,25 @@ class RegisterControler extends Controller
             'username' => $request->username,
             'password' => $request->password
         ])){
+            
+
             $user = User::where('username', $request->username)->first();
-            $user->token = $user->createToken('App')->accessToken;
-            $user->statusCode = 200;
-            return response()->json($user);
+
+            $token = $user->createToken('App')->accessToken;
+            $role = $user->roles->pluck('slug');
+            $permission = $user->permissions->pluck('slug');
+
+            return response()->json([
+                'statusCode' => 200,
+                'data' => [
+                    'token' => $token,
+                    'role' => $role,
+                    'permission' => $permission
+                ]
+            ], 200);
         }
 
-        return response()->json([
-            'statusCode' => 400,
-            'message' => [
-                'incorrect' => 'Tên đăng nhập hoặc mật khẩu không chính xác'
-            ]
-        ], 200);
+        return statusResponse(400, 'Tên đăng nhập hoặc mật khẩu không chính xác');
     }
 
     public function getUser(Request $request){

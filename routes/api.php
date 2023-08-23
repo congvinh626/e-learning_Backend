@@ -90,6 +90,12 @@ Route::group(['middleware' => 'auth:api'], function () {
     // Route::post('/fileUpload', [LessonController::class, 'fileUpload']);
     Route::delete('/fileUpload/{id}', [FileUploadController::class, 'destroy']);
 
+    Route::post('/addRoleTo', [UserController::class, 'addRoleTo']);
+    Route::post('/addPermissonsTo', [UserController::class, 'addPermissonsTo']);
+    Route::post('/addManyPermissonsTo', [UserController::class, 'addManyPermissonsTo']);
+    
+    Route::post('/addPermissonsToRole', [UserController::class, 'addPermissonsToRole']);
+    
 });
 
 

@@ -171,6 +171,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Ichtrojan\Otp\OtpServiceProvider::class,
+        App\Providers\PermissionsServiceProvider::class,
+
     ])->toArray(),
 
     /*

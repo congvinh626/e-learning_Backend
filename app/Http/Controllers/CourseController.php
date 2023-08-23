@@ -56,26 +56,27 @@ class CourseController extends Controller
      */
     public function store(CourseRequest $request)
     {
-        $user = Auth::user()->id;
-        $course = new Course();
+        if ($request->user()->can('create-course')) {
+            $user = Auth::user()->id;
+            $course = new Course();
 
-        $course->fill($request->all());
+            $course->fill($request->all());
 
-        if ($request->file()) {
-            $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', '', $request->slug);
-            $course->avatar = $image;
+            if ($request->file()) {
+                $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', '', $request->slug);
+                $course->avatar = $image;
+            }
+
+            $course->save();
+            $course->users()->attach($user, [
+                'user_create' => true,
+                'confirm' => true
+            ]);
+
+            return statusResponse(200,"Thêm mới thành công");
         }
+        return statusResponse(401,"Bạn không có quyền tạo");
 
-        $course->save();
-        $course->users()->attach($user, [
-            'user_create' => true,
-            'confirm' => true
-        ]);
-
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Thêm mới thành công!'
-        ], 200);
     }
 
     /**
