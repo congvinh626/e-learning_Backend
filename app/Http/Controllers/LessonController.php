@@ -35,7 +35,7 @@ class LessonController extends Controller
         $course_user = $course->users();
         $idTeacher = $course_user->first()->id;
 
-        $course->nameTeacher = UserInfo::find($idTeacher)->name;
+        $course->nameTeacher = UserInfo::where('user_id', $idTeacher)->first()->name;
         $course->numberOfMember = $course_user->count();
 
         $course->numberOfMemberWaiting = $course_user->where('confirm', false)->count();

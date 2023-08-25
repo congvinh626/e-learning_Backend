@@ -47,7 +47,7 @@ class RegisterRequest extends FormRequest
         return [
             'username.required' => 'Tên đăng nhập bắt buộc nhập!',
             'username.unique' => 'Tên đăng nhập đã tồn tại!',
-            'password.required' => 'Mật khảu bắt buộc nhập!',
+            'password.required' => 'Mật khẩu bắt buộc nhập!',
             'password.min' => 'Mật khẩu quá ngắn',
             'email.required' => 'Email bắt buộc nhập!',
             'email.email' => 'Bắt buộc phải là email!',

@@ -25,31 +25,64 @@ class CourseController extends Controller
 
     public function index(Request $request)
     {
-        $userCourses = $request->user()->courses();
-        $userCourses = $userCourses->where('status', $request->status);
+        $course = DB::table('course_user')->where('user_id', Auth::user()->id);
 
-        if ($request->searchText) {
-            $userCourses = $userCourses->where('title', 'like', "%$request->searchText%");
+        if($request->confirm == 'true'){
+            $course->where('confirm', true);
+        }else{
+            $course->where('confirm', false);
         }
-        $userCourses = $userCourses->paginate($request->pageSize);
+        $arrCourse = $course->pluck("course_id");
 
-        $userCourses->each(function ($course) {
+        $getCourse = Course::whereIn('id', $arrCourse)->where('status', $request->status);
+        if ($request->searchText) {
+            $getCourse = $getCourse->where('title', 'like', "%$request->searchText%");
+        }
+
+        $getCourse = $getCourse->paginate($request->pageSize);
+        
+        $getCourse->each(function ($course) {
 
             $course_user = $course->users();
             $idTeacher = $course_user->first()->id;
-            $course->nameTeacher = UserInfo::find($idTeacher)->name;
+            $course->nameTeacher = UserInfo::where('user_id', $idTeacher)->first()->name;
             $course->numberOfMember = $course_user->count();
             $course->numberOfLesson = $course->lessons()->count();
-            // $course->rwsst = 1;
             if ($course->avatar) {
                 $course->avatar ='/storage/images/course/' . $course->avatar;
             }
         });
-        // return request()->server('SERVER_NAME');
-        return $userCourses;
+        return $getCourse;
     }
 
+    public function suggest(Request $request)
+    {
+        if($request->courseCode){
+            $courseSuggest = Course::where('code', 'like', "$request->courseCode")->get();
+        }else{
+            $userCourses = $request->user()->courses->pluck('id');
+            $courseSuggest = Course::whereNotIn('id', $userCourses);
+            if ($request->searchText) {
+                $courseSuggest = $courseSuggest->where('title', 'like', "%$request->searchText%");
+            }
+            $courseSuggest = $courseSuggest->inRandomOrder()->take(10)->get();
+        }
+       
+        $courseSuggest->each(function ($course) {
 
+            $course_user = $course->users();
+            $idTeacher = $course_user->first()->id;
+
+            $course->nameTeacher = UserInfo::where('user_id', $idTeacher)->first()->name;
+
+            $course->numberOfMember = $course_user->count();
+            $course->numberOfLesson = $course->lessons()->count();
+            if ($course->avatar) {
+                $course->avatar ='/storage/images/course/' . $course->avatar;
+            }
+        });
+        return $courseSuggest;
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -86,7 +119,10 @@ class CourseController extends Controller
     {
         $course = Course::where('slug', $slug)->first();
         $course->avatar = '/storage/images/course/' . $course->avatar;
-
+        $course->numberOfLesson = $course->lessons()->count();
+        $course->numberOfMember = $course->users()->count();
+        $idTeacher = $course->users()->first()->id;
+        $course->nameTeacher = UserInfo::where('user_id', $idTeacher)->first()->name;
         return $course;
     }
 
@@ -150,13 +186,13 @@ class CourseController extends Controller
         return statusResponse(401,"Bạn không có quyền truy cập");
     }
 
-    public function register(Request $request)
+    public function register(Request $request, string $id)
     {
         if ($request->user()->can('course-register')) {
 
             $user_id = Auth::user()->id;
 
-            $course = Course::find($request->course_id);
+            $course = Course::find($id);
             $course->users()->attach( $user_id, [
                 'user_create' => false,
                 'confirm' => false
@@ -165,6 +201,20 @@ class CourseController extends Controller
         }
         return statusResponse(401,"Bạn không có quyền truy cập");
     }
+    
+
+    public function member(Request $request, string $id)
+    {
+        $course_user = DB::table('course_user')->where('course_id', $id);
+        $users_id = $course_user->where('confirm', true)->pluck('user_id');
+        $users = UserInfo::whereIn('user_id', $users_id)->select('id', 'avatar', 'name', 'user_id')->get();
+        $teacher_id =  $course_user->where('user_create', true)->first()->user_id;
+        return response()->json([
+            'teacher_id' => $teacher_id,
+            'users' => $users
+        ], 200);
+    }
+
 
     public function addMember(Request $request)
     {
@@ -219,5 +269,15 @@ class CourseController extends Controller
 
     }
     
+    public function getOff(Request $request, string $id)
+    {
+        if ($request->user()->can('course-get-off')) {
+            $course = Course::findOrFail($id);
+            $course->users()->detach(Auth::user()->id);
+
+            return statusResponse(200, "Thoát khóa học thành công!");
+        }
+        return statusResponse(401,"Bạn không có quyền truy cập");
+    }
     
 }

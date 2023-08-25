@@ -26,11 +26,29 @@ class UserController extends Controller
         $this->imageService = $imageService;
     }
 
+
+    public function uploadAvatar(Request $request)
+    {
+        $user = Auth::user();
+
+        $userInfo = UserInfo::where('user_id', $user->id)->first();
+        if ($request->file()) {
+            $image = $this->imageService->storeImage($request->file('avatar'), 'public/images/avatar', $userInfo->avatar, $user->username);
+            $userInfo->avatar = $image;
+            $userInfo->save();
+        
+        }
+
+        return statusResponse(200, 'Cập nhật thành công!');
+    }
+
     public function show()
     {
-        $userId = Auth::user()->id;
-        $userInfo = UserInfo::where('user_id', $userId)->first();
+        $user = Auth::user();
+        $userInfo = UserInfo::where('user_id', $user->id)->first();
         $userInfo->avatar = '/storage/images/avatar/'.$userInfo->avatar;
+        $userInfo->username = $user->username;
+        $userInfo->email = $user->email;
         return $userInfo;
     }
 

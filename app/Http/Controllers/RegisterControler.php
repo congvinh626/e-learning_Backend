@@ -39,10 +39,8 @@ class RegisterControler extends Controller
         }
         $permissions_role = $role->permissions->pluck('id');
         $user->permissions()->attach($permissions_role);
-        // $user->givePermissionsTo($permissions_role);
 
-
-        $user->notify(new EmailVerificationNotification());
+        // $user->notify(new EmailVerificationNotification());
 
         return response()->json($user);
     }

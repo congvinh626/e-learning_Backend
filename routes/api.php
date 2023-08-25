@@ -36,15 +36,18 @@ Route::post('/verifyOtp', [RegisterControler::class, 'verifyOtp']);
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/course', [CourseController::class, 'index']);
+    Route::get('/course/suggest', [CourseController::class, 'suggest']);
     Route::get('/course/{slug}', [CourseController::class, 'show']);
     Route::post('/course', [CourseController::class, 'store']);
     Route::post('/course/update', [CourseController::class, 'update']);
     Route::delete('/course/{slug}', [CourseController::class, 'destroy']);
     Route::post('/course/changeStatus/{slug}', [CourseController::class, 'changeStatus']);
-    Route::post('/course/register', [CourseController::class, 'register']);
+    Route::post('/course/register/{id}', [CourseController::class, 'register']);
+    Route::post('/course/member/{id}', [CourseController::class, 'member']);
     Route::post('/course/addMember', [CourseController::class, 'addMember']);
     Route::post('/course/removeMember', [CourseController::class, 'removeMember']);
     Route::get('/course/waitConfirmMember/{id}', [CourseController::class, 'waitConfirmMember']);
+    Route::post('/course/getOff/{id}', [CourseController::class, 'getOff']);
     
     Route::get('/course/lesson/{slug}', [LessonController::class, 'index']);
     Route::get('/lesson/{slug}', [LessonController::class, 'show']);
@@ -89,6 +92,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     // Route::post('/fileUpload', [LessonController::class, 'fileUpload']);
     Route::delete('/fileUpload/{id}', [FileUploadController::class, 'destroy']);
+    Route::post('/upload/avatar', [UserController::class, 'uploadAvatar']);
 
     Route::post('/addRoleTo', [UserController::class, 'addRoleTo']);
     Route::post('/addPermissonsTo', [UserController::class, 'addPermissonsTo']);
