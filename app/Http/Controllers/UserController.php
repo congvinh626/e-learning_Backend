@@ -54,7 +54,8 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        $userInfo = UserInfo::findOrFail($request->id);        
+        $user_id = Auth::user()->id;
+        $userInfo = UserInfo::where('user_id', $user_id)->first();     
         $userInfo->name = $request->name;
         $userInfo->phone = $request->phone;
         $userInfo->dob = $request->dob;

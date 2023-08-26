@@ -6,3 +6,11 @@ function statusResponse($statusCode, $message) {
         'message' => $message
     ], $statusCode);
 }
+
+function statusResponse2($statusCode, $status , $message, $data) {
+    return response()->json([
+        'statusCode' => $statusCode,
+        'message' => $message,
+        'data' => $data
+    ], $status);
+}

@@ -29,12 +29,14 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 Route::post('/register', [RegisterControler::class, 'register']);
 Route::post('/login', [RegisterControler::class, 'login']);
-Route::post('/resend', [RegisterControler::class, 'resend']);
-Route::post('/verifyOtp', [RegisterControler::class, 'verifyOtp']);
+
 
 
 
 Route::group(['middleware' => 'auth:api'], function () {
+    Route::post('/sendOtp', [RegisterControler::class, 'sendOtp']);
+    Route::post('/verifyOtp/{otp}', [RegisterControler::class, 'verifyOtp']);
+
     Route::get('/course', [CourseController::class, 'index']);
     Route::get('/course/suggest', [CourseController::class, 'suggest']);
     Route::get('/course/{slug}', [CourseController::class, 'show']);

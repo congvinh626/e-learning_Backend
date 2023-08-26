@@ -6,7 +6,9 @@ use App\Http\Requests\CommentRequest;
 use App\Http\Requests\CourseRequest;
 use App\Models\Comment;
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\User;
+use App\Models\UserInfo;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,23 +20,16 @@ class CommentController extends Controller
      */
    
 
-    public function index(Request $request)
-    {
-        $userCourses = $request->user()->courses();
-        $userCourses = $userCourses->where('status', $request->status);
+    public function index(string $slug)
+    {   
+        $lesson = Lesson::where('slug', $slug)->with('comments')->first();
 
-        if ($request->searchText) {
-            $userCourses = $userCourses->where('title', 'like', "%$request->searchText%");
+        foreach ($lesson->comments as $comment) {
+            $user = UserInfo::where('user_id', $comment->user_id)->first();
+            $comment->avatar = $user->avatar;
+            $comment->name = $user->name;
         }
-        $userCourses = $userCourses->paginate($request->pageSize);
-
-        $userCourses->each(function ($course) {
-            if ($course->avatar) {
-                $course->avatar ='/storage/images/course/' . $course->avatar;
-            }
-        });
-        // return request()->server('SERVER_NAME');
-        return $userCourses;
+        return $lesson;
     }
 
 
@@ -50,10 +45,7 @@ class CommentController extends Controller
         $comment->user_id = $user;
         $comment->save();
 
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Thêm mới thành công!'
-        ], 200);
+        return statusResponse2(200, 200, 'Thêm mới thành công!', '');
     }
 
     /**
@@ -74,31 +66,25 @@ class CommentController extends Controller
             $comment->user_id = $user_id;
             $comment->save();
         }else{
-            return response()->json([
-                'statusCode' => 400,
-                'message' => 'Bạn không có quyền thực hiện!'
-            ], 400);
-        }
+            return statusResponse2(400, 200, 'Bạn không có quyền truy cập!', '');
 
-        
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Cập nhật thành công!'
-        ], 200);
+        }
+        return statusResponse2(200, 200, 'Cập nhật thành công!', '');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $slug)
+    public function destroy(string $id)
     {
-        $course = Course::where('slug', $slug)->first();
-        Course::destroy($course->id);
+        $comment = Comment::findOrFail($id);        
+        if(Auth::user()->id != $comment->id){
+            return statusResponse2(400, 200, 'Bạn không có quyền truy cập!', '');
+        }
+        Course::destroy($comment->id);
 
-        return response()->json([
-            'statusCode' => 200,
-            'message' => 'Xóa khóa học thành công!'
-        ], 200);
+        return statusResponse2(200, 200, 'Xóa khóa học thành công!', '');
+
     }
 
  
