@@ -134,16 +134,12 @@ class CourseController extends Controller
         if ($request->user()->can('course-edit')) {
             
             $course = Course::findOrFail($request->id);
-            // return $course->avatar;
             $course->fill($request->all());
 
             if ($request->file()) {
                 $image =  $this->imageService->storeImage($request->file('avatar'), 'public/images/course', $course->avatar, $request->slug);
                 $course->avatar = $image;
             }
-            // else{
-            //     $course->avatar = $course->avatar;
-            // }
             $course->save();
             return statusResponse(200,"Cập nhật thành công!");
 

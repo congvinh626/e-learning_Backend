@@ -8,25 +8,7 @@ use Illuminate\Http\Request;
 
 class AnswerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+  
     public function store(AnswerRequest $request)
     {
         if ($request->user()->can('answer-create')) {
@@ -62,7 +44,7 @@ class AnswerController extends Controller
     {
         if ($request->user()->can('answer-delete')) {
             $question = Answer::find($id);
-            Answer::destroy( $question->id);
+            Answer::destroy($question->id);
             return statusResponse(200,"Xóa đáp án thành công!");
         }
         return statusResponse(401,"Bạn không có quyền truy cập");

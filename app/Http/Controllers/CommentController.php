@@ -28,7 +28,7 @@ class CommentController extends Controller
             $user = UserInfo::where('user_id', $comment->user_id)->first();
             $comment->avatar = $user->avatar;
             $comment->name = $user->name;
-            $comment->username = $comment->user()->first()->username;
+            $comment->username = $comment->with('user')->first()->username;
         }
         return $lesson;
     }
@@ -59,8 +59,14 @@ class CommentController extends Controller
      */
     public function update(CommentRequest $request)
     {
-        $user_id = Auth::user()->id;
+        
+
+        $user = Auth::user();
+        $user_id = $user->id;
+
+
         $comment = Comment::findOrFail($request->id);
+        $this->authorize('update', $comment);
 
         if($comment->user_id == $user_id){
             $comment->fill($request->all());
@@ -78,14 +84,12 @@ class CommentController extends Controller
      */
     public function destroy(string $id)
     {
-        $comment = Comment::findOrFail($id);        
-        if(Auth::user()->id != $comment->user_id){
-            return statusResponse2(400, 200, 'Bạn không có quyền truy cập!', '');
-        }
+        $comment = Comment::findOrFail($id); 
+        $this->authorize('delete', $comment);
+        
         Comment::destroy($id);
 
         return statusResponse2(200, 200, 'Xóa khóa học thành công!', '');
-
     }
 
  

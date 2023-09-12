@@ -211,8 +211,4 @@ class ExamController extends Controller
         }
         return statusResponse(401,"Bạn không có quyền truy cập");
     }
-
-    
-    
-    
 }
