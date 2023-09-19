@@ -5,12 +5,16 @@ import 'bootstrap';
  * to our Laravel back-end. This library automatically handles sending the
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
-
+import Echo from 'laravel-echo'
 import axios from 'axios';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+window.Echo = new Echo({
+    broadcaster: 'socket.io',
+    host: `${window.location.protocol}//${window.location.hostname}:6001`
+})
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

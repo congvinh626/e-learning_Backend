@@ -7,6 +7,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RegisterControler;
 use App\Http\Controllers\UserController;
@@ -90,7 +91,10 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/user/update', [UserController::class, 'update']);
     Route::post('/avatar', [UserController::class, 'avatar']);
 
-
+    Route::get('/message', [MessageController::class, 'index']);
+    Route::post('/message', [MessageController::class, 'store']);
+    Route::post('/message/update', [MessageController::class, 'update']);
+    Route::delete('/message/{id}', [MessageController::class, 'destroy']);
 
     // Route::post('/fileUpload', [LessonController::class, 'fileUpload']);
     Route::delete('/fileUpload/{id}', [FileUploadController::class, 'destroy']);
