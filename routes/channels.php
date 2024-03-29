@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,21 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+// Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+//     return (int) $user->id === (int) $id;
+// });
+
+// Broadcast::channel('presence-chat', function ($user, $userId) {
+//     echo(1111);
+//     return true;
+//     // return $user->id === $userId;
+//   });
+Broadcast::channel('presence-chat', function ($user, $userId) {
+  // if ($user->id === $userId) {
+  //   return array('name' => $user->name);
+  // }
+  return true;
 });
+// Broadcast::channel('room2', function ($user, $id) {
+//     return true; // user có thể join vào bất kì chatroom nào
+// });

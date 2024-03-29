@@ -7,6 +7,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RegisterControler;
 use App\Http\Controllers\UserController;
@@ -104,9 +105,20 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::post('/upload-excel-create-role-permission', [UserController::class, 'createRolePermission']);
     
+    Route::post('/channels/message', [MessageController::class, 'sendMessage']);
+    Route::post('/channels/authorize', [MessageController::class, 'authorizeUser']);
+
+
+    Route::get('/groupChat', [MessageController::class, 'test']);
+    Route::post('/message/test', [MessageController::class, 'test']);
+    Route::get('/message', [MessageController::class, 'index']);
+    Route::post('/message', [MessageController::class, 'store']);
+    Route::post('/message/update', [MessageController::class, 'update']);
+    Route::delete('/message/{id}', [MessageController::class, 'destroy']);
 });
 
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
