@@ -139,10 +139,10 @@ class UserController extends Controller
     }
     
     public function createRolePermission(Request $request){
-        if ($request->user()->can('upload-excel-create-role-permission')) {
+        // if ($request->user()->can('upload-excel-create-role-permission')) {
             Excel::import(new CreatePermissionImport(), storage_path('eleaning-role-permission.xlsx'));
             return statusResponse(200,"Import thành công!");
-        }
+        // }
         return statusResponse(401,"Bạn không có quyền truy cập");
     }
     
