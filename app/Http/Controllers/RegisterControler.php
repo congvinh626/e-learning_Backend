@@ -113,7 +113,8 @@ class RegisterControler extends Controller
             $data = [
                 'token' => $token,
                 'role' => $role,
-                'permission' => $permission
+                'permission' => $permission,
+                'user_id' => $user->id
             ];
 
             if(!$user->email_verified_at){

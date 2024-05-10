@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Events\Message as EventsMessage;
 use App\Events\MessagePosted;
+use App\Models\Course;
 use App\Models\Message;
+use App\Models\UserInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Response;
 use Pusher\Pusher;
+use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
@@ -37,13 +40,23 @@ class MessageController extends Controller
         //     return new Response('Forbidden', 403);
         // }
         $data = $request->json()->all();
-        $data['user'] = Auth::user()->id;
-        $this->pusher->trigger('presence-chat', 'send-message', $data);
-        // $message = new Message();
-        // $message->room = $request->input('room', 'private-chat');
-        // $message->sender = Auth::user()->id;
-        // $message->content = $request->input('content', $request->content);
-        // $message->save();
+        $userId = Auth::user()->id;
+        // return $data;
+        $message = new Message();
+        $message->room = $request->room;
+        $message->sender = Auth::user()->id;
+        $message->content = $request->content;
+        $message->save();
+
+        $sendData = Message::where('id', $message->id)->with(['sender' => function ($query) use ($userId){
+            $query->select('id', 'username');
+            // $query->addSelect(DB::raw("IF(id = $userId, true, false) as is_checked"));
+        }])->first();
+        // return $sendData;
+        $this->pusher->trigger($request->channel, $request->event, $sendData);
+
+        // broadcast(new MessagePosted($message->load('sender')))->toOthers();
+        // return response()->json(['message' => $message->load('sender')]);
         // return $message->load('sender')->toOthers();
         // broadcast(new MessagePosted("fsdfdsfd"));
         // broadcast(new MessagePosted($message->load('sender')))->toOthers();
@@ -66,6 +79,34 @@ class MessageController extends Controller
         );
     }
 
+    
+
+    public function groupChat(Request $request)
+    {
+        // return 1;
+        $arrCourse = DB::table('course_user')->where('user_id', Auth::user()->id)->where('confirm', true)->pluck('course_id');
+        $getCourse = Course::whereIn('id', $arrCourse)->get();
+
+        foreach ($getCourse as $item) {
+            if ($item->avatar) {
+                $item->avatar = '/storage/images/course/' . $item->avatar;
+            }
+        }
+        // $getCourse->each(function ($course) {
+
+        //     $course_user = $course->users();
+        //     $idTeacher = $course_user->first()->id;
+        //     $course->nameTeacher = UserInfo::where('user_id', $idTeacher)->first()->name;
+        //     $course->numberOfMember = $course_user->count();
+        //     $course->numberOfLesson = $course->lessons()->count();
+        //     if ($course->avatar) {
+        //         $course->avatar = '/storage/images/course/' . $course->avatar;
+        //     }
+        // });
+        return $getCourse;
+    }
+
+
     public function test(Request $request)
     {
     //     $event = new SendMessageEvent($data);
@@ -77,7 +118,13 @@ class MessageController extends Controller
     
     public function index(Request $request)
     {   
-        $messages = Message::with(['sender'])->where('room', 2)->orderBy('created_at', 'asc')->get();
+        $userId = Auth::user()->id;
+        $messages = Message::where('room', $request->room)->with(['sender' => function ($query) use ($userId){
+            $query->select('id', 'username');
+            // $query->addSelect(DB::raw("IF(id = $userId, true, false) as is_checked"));
+        }])->paginate(50);
+
+        // $messages = Message::with(['sender'])->where('room', $request->room)->orderBy('created_at', 'asc')->get();
         return $messages;
         // $lesson = Lesson::where('slug', $slug)->with('comments')->first();
 
@@ -107,16 +154,18 @@ class MessageController extends Controller
         // $message->sender = Auth::user()->id;
         // broadcast(new MessagePosted($message->load('sender')))->toOthers();
         // return statusResponse2(200, 200, 'Thêm mới thành công!', '');
-
         $message = new Message();
         $message->room = $request->input('room', 2);
         $message->sender = Auth::user()->id;
         $message->content = $request->input('content', $request->content);
         $message->save();
+        broadcast(new MessagePosted($message));
+    // return ['message' => $message->load('user')];
         // return $message->load('sender')->toOthers();
         // broadcast(new MessagePosted("fsdfdsfd"));
-        broadcast(new MessagePosted($message->load('sender')))->toOthers();
-        return response()->json(['message' => $message->load('sender')]);
+        // return $message->load('sender')->toOthers();
+        // broadcast(new MessagePosted($message->load('sender')))->toOthers();
+        // return response()->json(['message' => $message->load('sender')]);
     }
 
     /**

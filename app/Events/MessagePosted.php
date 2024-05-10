@@ -42,7 +42,6 @@ class MessagePosted implements ShouldBroadcast, ShouldQueue
         // return [
         //     new PrivateChannel('room2')
         // ];
-    Log::info('222222222222222', );
 
         return new PresenceChannel('presence-chat');
         // return new PrivateChannel('room2');

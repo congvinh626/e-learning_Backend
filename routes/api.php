@@ -46,7 +46,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::delete('/course/{slug}', [CourseController::class, 'destroy']);
     Route::post('/course/changeStatus/{slug}', [CourseController::class, 'changeStatus']);
     Route::post('/course/register/{id}', [CourseController::class, 'register']);
-    Route::post('/course/member/{id}', [CourseController::class, 'member']);
+    Route::get('/course/member/{id}', [CourseController::class, 'member']);
     Route::post('/course/addMember', [CourseController::class, 'addMember']);
     Route::post('/course/removeMember', [CourseController::class, 'removeMember']);
     Route::get('/course/waitConfirmMember/{id}', [CourseController::class, 'waitConfirmMember']);
@@ -109,7 +109,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/channels/authorize', [MessageController::class, 'authorizeUser']);
 
 
-    Route::get('/groupChat', [MessageController::class, 'test']);
+    Route::get('/groupChat', [MessageController::class, 'groupChat']);
     Route::post('/message/test', [MessageController::class, 'test']);
     Route::get('/message', [MessageController::class, 'index']);
     Route::post('/message', [MessageController::class, 'store']);

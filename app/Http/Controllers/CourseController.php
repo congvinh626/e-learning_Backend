@@ -27,9 +27,9 @@ class CourseController extends Controller
     {
         $course = DB::table('course_user')->where('user_id', Auth::user()->id);
 
-        if($request->confirm == 'true'){
+        if ($request->confirm == 'true') {
             $course->where('confirm', true);
-        }else{
+        } else {
             $course->where('confirm', false);
         }
         $arrCourse = $course->pluck("course_id");
@@ -40,7 +40,7 @@ class CourseController extends Controller
         }
 
         $getCourse = $getCourse->paginate($request->pageSize);
-        
+
         $getCourse->each(function ($course) {
 
             $course_user = $course->users();
@@ -49,7 +49,7 @@ class CourseController extends Controller
             $course->numberOfMember = $course_user->count();
             $course->numberOfLesson = $course->lessons()->count();
             if ($course->avatar) {
-                $course->avatar ='/storage/images/course/' . $course->avatar;
+                $course->avatar = '/storage/images/course/' . $course->avatar;
             }
         });
         return $getCourse;
@@ -57,9 +57,11 @@ class CourseController extends Controller
 
     public function suggest(Request $request)
     {
-        if($request->courseCode){
+
+
+        if ($request->courseCode) {
             $courseSuggest = Course::where('code', 'like', "$request->courseCode")->get();
-        }else{
+        } else {
             $userCourses = $request->user()->courses->pluck('id');
             $courseSuggest = Course::whereNotIn('id', $userCourses);
             if ($request->searchText) {
@@ -67,7 +69,6 @@ class CourseController extends Controller
             }
             $courseSuggest = $courseSuggest->inRandomOrder()->take(10)->get();
         }
-       
         $courseSuggest->each(function ($course) {
 
             $course_user = $course->users();
@@ -78,9 +79,10 @@ class CourseController extends Controller
             $course->numberOfMember = $course_user->count();
             $course->numberOfLesson = $course->lessons()->count();
             if ($course->avatar) {
-                $course->avatar ='/storage/images/course/' . $course->avatar;
+                $course->avatar = '/storage/images/course/' . $course->avatar;
             }
         });
+
         return $courseSuggest;
     }
 
@@ -106,10 +108,9 @@ class CourseController extends Controller
                 'confirm' => true
             ]);
 
-            return statusResponse(200,"Thêm mới thành công");
+            return statusResponse(200, "Thêm mới thành công");
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
-
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
 
     /**
@@ -132,7 +133,7 @@ class CourseController extends Controller
     public function update(CourseRequest $request)
     {
         if ($request->user()->can('course-edit')) {
-            
+
             $course = Course::findOrFail($request->id);
             $course->fill($request->all());
 
@@ -141,12 +142,10 @@ class CourseController extends Controller
                 $course->avatar = $image;
             }
             $course->save();
-            return statusResponse(200,"Cập nhật thành công!");
-
+            return statusResponse(200, "Cập nhật thành công!");
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
-    
-        }
+        return statusResponse(401, "Bạn không có quyền truy cập");
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -163,8 +162,7 @@ class CourseController extends Controller
                 'message' => 'Xóa khóa học thành công!'
             ], 200);
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
-    
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
 
     public function changeStatus(Request $request, string $slug)
@@ -177,9 +175,8 @@ class CourseController extends Controller
             $course->save();
 
             return statusResponse(200, "Thay đổi trạng thái thành công!");
-
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
 
     public function register(Request $request, string $id)
@@ -189,15 +186,15 @@ class CourseController extends Controller
             $user_id = Auth::user()->id;
 
             $course = Course::find($id);
-            $course->users()->attach( $user_id, [
+            $course->users()->attach($user_id, [
                 'user_create' => false,
                 'confirm' => false
             ]);
             return statusResponse(200, "Đăng ký thành công!");
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
-    
+
 
     public function member(Request $request, string $id)
     {
@@ -217,22 +214,22 @@ class CourseController extends Controller
         if ($request->user()->can('course-add-member')) {
 
             $user_id = Auth::user()->id;
-        
-        
+
+
             $course = Course::findOrFail($request->course_id);
 
             $userCreate = $course->users->find($user_id)->pivot->user_create;
 
-            if($userCreate == 0){
+            if ($userCreate == 0) {
                 return statusResponse(401, "Không có quyền thêm thành viên!");
             }
-            
+
             $course = Course::find($request->course_id);
             $course->users()->updateExistingPivot($request->user_id, ['confirm' => true]);
 
             return statusResponse(200, "Thêm thành viên thành công!");
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
 
     public function removeMember(Request $request)
@@ -244,27 +241,26 @@ class CourseController extends Controller
 
             return statusResponse(200, "Xóa thành viên thành công!");
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
 
     public function waitConfirmMember(Request $request, string $id)
     {
         if ($request->user()->can('course-wait-confirm-member')) {
             $users = DB::table('course_user')
-            ->where('course_id', $id)
-            ->where('confirm', false)
-            ->join('user_infos', 'course_user.user_id', '=', 'user_infos.user_id')
-            ->select('user_infos.user_id', 'user_infos.avatar', 'user_infos.name')
-            ->get();
+                ->where('course_id', $id)
+                ->where('confirm', false)
+                ->join('user_infos', 'course_user.user_id', '=', 'user_infos.user_id')
+                ->select('user_infos.user_id', 'user_infos.avatar', 'user_infos.name')
+                ->get();
             return response()->json([
                 'statusCode' => 200,
                 'data' => $users
             ], 200);
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
-
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
-    
+
     public function getOff(Request $request, string $id)
     {
         if ($request->user()->can('course-get-off')) {
@@ -273,7 +269,6 @@ class CourseController extends Controller
 
             return statusResponse(200, "Thoát khóa học thành công!");
         }
-        return statusResponse(401,"Bạn không có quyền truy cập");
+        return statusResponse(401, "Bạn không có quyền truy cập");
     }
-    
 }

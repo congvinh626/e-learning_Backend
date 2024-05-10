@@ -64,6 +64,7 @@ class LessonController extends Controller
             $lesson->files = $file;
 
         }
+
         $course->lessons = $lessons;
         return $course;
     }
